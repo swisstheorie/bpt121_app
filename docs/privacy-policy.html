@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Datenschutzerklärung / Privacy Policy – BPT 121 Schweiz</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --swiss-red: #d52b1e;
+      --taxi-gold: #ffc700;
+      --border: #334155;
+      --tag-bg: #1e3a8a;
+      --tag-text: #93c5fd;
+      --success-bg: rgba(34, 197, 94, 0.15);
+      --success-text: #4ade80;
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f8fafc;
+        --card-bg: #ffffff;
+        --text-main: #0f172a;
+        --text-muted: #64748b;
+        --border: #e2e8f0;
+        --tag-bg: #eff6ff;
+        --tag-text: #1d4ed8;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      line-height: 1.65;
+      padding: 24px 16px 80px 16px;
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      padding: 40px 0 24px 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 32px;
+    }
+
+    .badge-bar {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 600;
+      background: var(--success-bg);
+      color: var(--success-text);
+      border: 1px solid rgba(74, 222, 128, 0.3);
+    }
+
+    .badge-accent {
+      background: rgba(255, 199, 0, 0.15);
+      color: var(--taxi-gold);
+      border-color: rgba(255, 199, 0, 0.3);
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 16px;
+      color: var(--text-muted);
+    }
+
+    .lang-switcher {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 24px;
+    }
+
+    .lang-btn {
+      padding: 8px 18px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      color: var(--text-main);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .lang-btn:hover {
+      border-color: var(--taxi-gold);
+    }
+
+    .section-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px 28px;
+      margin-bottom: 28px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    h2 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-top: 24px;
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h2:first-of-type {
+      margin-top: 0;
+    }
+
+    h3 {
+      font-size: 17px;
+      font-weight: 600;
+      margin-top: 16px;
+      margin-bottom: 6px;
+    }
+
+    p {
+      margin-bottom: 14px;
+      color: var(--text-main);
+    }
+
+    ul {
+      margin-left: 20px;
+      margin-bottom: 16px;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    .highlight-box {
+      background: rgba(30, 41, 59, 0.6);
+      border-left: 4px solid var(--taxi-gold);
+      padding: 16px 20px;
+      border-radius: 0 8px 8px 0;
+      margin: 18px 0;
+    }
+
+    .highlight-box p {
+      margin-bottom: 0;
+      font-weight: 500;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 48px;
+      border-top: 1px solid var(--border);
+      padding-top: 24px;
+    }
+
+    a {
+      color: var(--taxi-gold);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="badge-bar">
+        <span class="badge">✓ 100% Offline-App</span>
+        <span class="badge">✓ Keine Datenerfassung / Zero Tracking</span>
+        <span class="badge badge-accent">CH-DSG & EU-DSGVO Konform</span>
+      </div>
+      <h1>BPT 121 Schweiz / Taxi ARV 2 Theorie</h1>
+      <p class="subtitle">Datenschutzerklärung / Privacy Policy</p>
+      <div class="lang-switcher">
+        <a href="#de" class="lang-btn">Deutsch (DE)</a>
+        <a href="#en" class="lang-btn">English (EN)</a>
+      </div>
+    </header>
+
+    <!-- GERMAN SECTION -->
+    <article id="de" class="section-card">
+      <h2>1. Übersicht &amp; Grundsatz</h2>
+      <p>
+        Der Schutz Ihrer Privatsphäre hat für uns höchste Priorität. Diese Datenschutzerklärung informiert Sie über die Verarbeitung personenbezogener Daten bei der Nutzung der mobilen Lern-App <strong>BPT 121 Schweiz / Taxi ARV 2 Theorie</strong> gemäss dem <strong>Bundesgesetz über den Datenschutz (revDSG, Schweiz)</strong> sowie der <strong>EU-Datenschutz-Grundverordnung (DSGVO)</strong>.
+      </p>
+
+      <div class="highlight-box">
+        <p>
+          <strong>Kernaussage:</strong> Die App <em>BPT 121 Schweiz</em> arbeitet vollständig <strong>lokal und offline</strong>. Es werden zu keinem Zeitpunkt persönliche Daten, Standortdaten oder Nutzungsstatistiken an externe Server oder Dritte übertragen.
+        </p>
+      </div>
+
+      <h2>2. Verantwortliche Stelle</h2>
+      <p>Verantwortlich für die Datenverarbeitung im Sinne der Datenschutzgesetze ist:</p>
+      <p>
+        <strong>Entwickler-Team BPT 121 Schweiz</strong><br>
+        E-Mail: <a href="mailto:support@bpt121.ch">support@bpt121.ch</a><br>
+        Webseite: <a href="https://github.com">https://github.com</a>
+      </p>
+
+      <h2>3. Erfassung und Speicherung von Daten</h2>
+      <h3>3.1 Keine Erfassung personenbezogener Daten</h3>
+      <p>
+        Beim Herunterladen, Starten und Nutzen der App werden keine personenbezogenen Identifikationsmerkmale erhoben. Wir verlangen weder Registrierung, Login, Name, E-Mail-Adresse noch Telefonnummer.
+      </p>
+
+      <h3>3.2 Ausschliesslich lokale Speicherung auf Ihrem Endgerät</h3>
+      <p>
+        Zur Gewährleistung der Lernfunktionen werden folgende Informationen ausschliesslich <strong>lokal im geschützten App-Speicher</strong> (Sandboxed Storage) Ihres Geräts hinterlegt:
+      </p>
+      <ul>
+        <li><strong>Lernfortschritt &amp; Prüfungsergebnisse:</strong> Datum, Punktezahl, Quote und Bestehensstatus von absolvierten Probeprüfungen.</li>
+        <li><strong>Fragen-Statistiken:</strong> Lokal vermerkte falsch beantwortete Fragen zur gezielten Wiederholung.</li>
+        <li><strong>Favoriten:</strong> Durch Sie markierte Lesezeichen für spezifische Prüfungsfragen.</li>
+        <li><strong>App-Einstellungen:</strong> Gewählte Sprache (Deutsch, Französisch, Italienisch).</li>
+      </ul>
+      <p>
+        Diese Daten verlassen zu keinem Zeitpunkt Ihr Gerät. Es existiert keine Cloud-Synchronisation und keine Anbindung an externe Datenbanken.
+      </p>
+
+      <h2>4. Berechtigungen des Endgeräts</h2>
+      <p>
+        Die App benötigt <strong>keine sensiblen Systemberechtigungen</strong>:
+      </p>
+      <ul>
+        <li>Kein Zugriff auf Standortdaten (GPS)</li>
+        <li>Kein Zugriff auf Kontakte, Adressbuch oder Kalender</li>
+        <li>Kein Zugriff auf Kamera oder Mikrofon</li>
+        <li>Kein Zugriff auf Fotos oder externe Speicherdateien</li>
+        <li>Keine Werbe-ID-Abfragen (IDFA / AAID)</li>
+      </ul>
+
+      <h2>5. Analyse-Tools, Werbenetzwerke &amp; Drittanbieter</h2>
+      <p>
+        Die App enthält:
+      </p>
+      <ul>
+        <li><strong>Keine Werbeeinblendungen</strong> (Ad-free)</li>
+        <li><strong>Keine Werbe-Tracking-SDKs</strong> (kein Google AdMob, kein Meta Pixel, kein Unity Ads)</li>
+        <li><strong>Keine Analytics-Tracker</strong> (kein Google Analytics, kein Firebase Analytics, kein Mixpanel)</li>
+        <li><strong>Keine Social-Media-Plugins</strong></li>
+      </ul>
+
+      <h2>6. Rechte der Nutzer (Auskunft, Löschung)</h2>
+      <p>
+        Da alle Daten ausschliesslich lokal auf Ihrem Gerät gespeichert sind, haben Sie jederzeit die vollständige Kontrolle:
+      </p>
+      <ul>
+        <li><strong>Löschung aller Daten:</strong> Sie können Ihren Lernstand direkt in der App unter dem Menüpunkt <em>Profil &gt; Lernstand zurücksetzen</em> löschen oder die App deinstallieren. Dadurch werden sämtliche lokal abgelegten Daten unwiderruflich und rückstandsfrei entfernt.</li>
+      </ul>
+
+      <h2>7. Aktualität und Änderungen</h2>
+      <p>
+        Diese Datenschutzerklärung ist aktuell gültig und datiert vom <strong>Oktober 2026</strong>. Bei künftigen Funktionserweiterungen der App wird die Erklärung entsprechend angepasst.
+      </p>
+    </article>
+
+    <!-- ENGLISH SECTION -->
+    <article id="en" class="section-card">
+      <h2>1. Overview &amp; Principles</h2>
+      <p>
+        Protecting your privacy is of paramount importance to us. This Privacy Policy informs you about the processing of personal data when using the mobile study application <strong>BPT 121 Schweiz / Taxi ARV 2 Theorie</strong> in accordance with the <strong>Swiss Federal Act on Data Protection (revDSG / FADP)</strong> and the <strong>EU General Data Protection Regulation (GDPR)</strong>.
+      </p>
+
+      <div class="highlight-box">
+        <p>
+          <strong>Summary:</strong> The <em>BPT 121 Schweiz</em> app operates entirely <strong>locally and offline</strong>. At no time are personal data, location metrics, or usage statistics transmitted to external servers or third parties.
+        </p>
+      </div>
+
+      <h2>2. Data Controller</h2>
+      <p>Responsible party within the meaning of applicable data protection laws is:</p>
+      <p>
+        <strong>BPT 121 Schweiz Development Team</strong><br>
+        Email: <a href="mailto:support@bpt121.ch">support@bpt121.ch</a><br>
+        Website: <a href="https://github.com">https://github.com</a>
+      </p>
+
+      <h2>3. Data Collection and Local Storage</h2>
+      <h3>3.1 No Personal Data Collection</h3>
+      <p>
+        When installing and using the app, no personal identification data is collected. No registration, user account, email address, or phone number is required.
+      </p>
+
+      <h3>3.2 Local On-Device Storage Only</h3>
+      <p>
+        To deliver its educational features, the app stores the following data exclusively in the <strong>local sandboxed storage</strong> of your device:
+      </p>
+      <ul>
+        <li><strong>Learning Progress &amp; Exam Results:</strong> Timestamps, scores, pass rates, and completion status of test simulations.</li>
+        <li><strong>Question Statistics:</strong> Incorrectly answered questions for targeted review and repetition.</li>
+        <li><strong>Bookmarks / Favorites:</strong> Saved questions bookmarked by you for later study.</li>
+        <li><strong>App Settings:</strong> Chosen UI language (German, French, Italian).</li>
+      </ul>
+      <p>
+        This data never leaves your device. There is no cloud sync, no tracking server, and no remote database.
+      </p>
+
+      <h2>4. Device Permissions</h2>
+      <p>
+        The application does not request or require any sensitive device permissions:
+      </p>
+      <ul>
+        <li>No access to device location (GPS)</li>
+        <li>No access to contacts or address books</li>
+        <li>No access to camera or microphone</li>
+        <li>No access to photos or general file storage</li>
+        <li>No tracking of advertising identifiers (IDFA / AAID)</li>
+      </ul>
+
+      <h2>5. Analytics, Advertising &amp; Third-Party Services</h2>
+      <p>
+        The application contains:
+      </p>
+      <ul>
+        <li><strong>No advertisements</strong> (100% ad-free experience)</li>
+        <li><strong>No advertising tracking SDKs</strong></li>
+        <li><strong>No usage analytics or crash-reporting trackers</strong></li>
+        <li><strong>No third-party data broker libraries</strong></li>
+      </ul>
+
+      <h2>6. Your Rights &amp; Data Deletion</h2>
+      <p>
+        Because all study data resides exclusively on your local device:
+      </p>
+      <ul>
+        <li><strong>Instant Data Deletion:</strong> You can erase all study statistics at any time within the app under <em>Profile &gt; Reset Learning Data</em>, or simply uninstall the application. Uninstalling immediately and permanently deletes 100% of locally saved data.</li>
+      </ul>
+
+      <h2>7. Revisions and Contact</h2>
+      <p>
+        This Privacy Policy is effective as of <strong>October 2026</strong>. If you have questions regarding this policy, please contact <a href="mailto:support@bpt121.ch">support@bpt121.ch</a>.
+      </p>
+    </article>
+
+    <footer>
+      <p>© 2026 BPT 121 Schweiz / Taxi ARV 2 Theorie. Alle Rechte vorbehalten / All rights reserved.</p>
+      <p style="margin-top: 6px;">Stand / Last Updated: Oktober 2026</p>
+    </footer>
+  </div>
+
+</body>
+</html>
