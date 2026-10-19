@@ -22,10 +22,10 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Set up App Store Connect API Key
+      - name: Set up App Store Connect API Key (Base64 Decode)
         run: |
           mkdir -p ~/.private_keys
-          echo -n "${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}" > ~/.private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8
+          echo "${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}" | base64 --decode > ~/.private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8
 
       - name: Build IPA for App Store
         run: flutter build ipa --release --no-codesign
