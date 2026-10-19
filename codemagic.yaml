@@ -10,7 +10,6 @@ workflows:
       xcode: latest
       vars:
         BUNDLE_ID: "ch.swisstheorie.bpt121"
-        APP_STORE_APPLE_ID: "4B79843375"
     scripts:
       - name: Install dependencies
         script: |
@@ -23,10 +22,10 @@ workflows:
           xcode-project use-profiles
       - name: Build IPA
         script: |
-          flutter build ios --release --no-codesign
           xcode-project build-ipa \
             --workspace ios/Runner.xcworkspace \
-            --scheme Runner
+            --scheme Runner \
+            --archive-flags="-destination 'generic/platform=iOS'"
     artifacts:
       - build/ios/ipa/*.ipa
     publishing:
