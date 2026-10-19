@@ -24,9 +24,13 @@ workflows:
         script: |
           flutter build ipa --release \
             --export-options-plist=/Users/builder/export_options.plist
+          find . -name "*.ipa" -exec cp {} build/ios/ipa/ \; 2>/dev/null || true
+          ls -la build/ios/ipa/ || true
+      - name: Publish to App Store Connect
+        script: |
+          app-store-connect publish \
+            --path $(find . -name "*.ipa" | head -n 1)
     artifacts:
-      - build/ios/ipa/*.ipa
-    publishing:
-      app_store_connect:
-        auth: integration
-        submit_to_testflight: false
+      - "**/build/**/ipa/*.ipa"
+      - "*.ipa"
+      - "**/*.ipa"
