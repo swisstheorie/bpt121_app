@@ -38,6 +38,8 @@ dependencies:
   google_fonts: ^6.2.1
   flutter_native_splash: ^2.4.8
   in_app_purchase: ^3.2.0
+  in_app_purchase_storekit: ^0.4.14
+  shared_preferences_foundation: 2.5.4
 
 dev_dependencies:
   flutter_test:

@@ -25,6 +25,8 @@ class ExamScreen extends StatefulWidget {
   final List<Question>? customQuestions;
   final String? customTitle;
   final int? timeLimitSeconds;
+  final int? initialSelectedAnswerIndex;
+  final bool initialIsAnswerChecked;
 
   const ExamScreen({
     super.key,
@@ -34,6 +36,8 @@ class ExamScreen extends StatefulWidget {
     this.customQuestions,
     this.customTitle,
     this.timeLimitSeconds,
+    this.initialSelectedAnswerIndex,
+    this.initialIsAnswerChecked = false,
   });
 
   @override
@@ -69,6 +73,8 @@ class _ExamScreenState extends State<ExamScreen> {
   @override
   void initState() {
     super.initState();
+    _selectedAnswerIndex = widget.initialSelectedAnswerIndex;
+    _isAnswerChecked = widget.initialIsAnswerChecked;
     _loadPremiumStatus();
     if (widget.customQuestions != null) {
       _questions = widget.customQuestions!;
@@ -1065,9 +1071,12 @@ class _ExamScreenState extends State<ExamScreen> {
 
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 720),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
           // Progress Header
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1160,7 +1169,9 @@ class _ExamScreenState extends State<ExamScreen> {
             _buildPracticeNextButton(colors),
         ],
       ),
-    );
+    ),
+  ),
+);
   }
 
   Widget _buildSimulationNavigationRow(AppThemeColors colors) {

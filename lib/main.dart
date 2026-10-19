@@ -363,6 +363,11 @@ class _Bpt121AppState extends State<Bpt121App> {
             ? ThemeMode.dark
             : ThemeMode.system;
 
+    if (Uri.base.queryParameters['screen'] != null) {
+      await StorageService.markExamDisclaimerSeen();
+      await StorageService.saveSelectedLanguage('de');
+    }
+
     if (widget.initialLanguage != null) {
       setState(() {
         _savedLanguageCode = widget.initialLanguage;
@@ -518,6 +523,41 @@ class _Bpt121AppState extends State<Bpt121App> {
       themeMode: _themeMode,
       theme: _lightTheme,
       darkTheme: _darkTheme,
+      builder: (context, child) {
+        final screen = Uri.base.queryParameters['screen'];
+        if (screen == null || child == null) return child!;
+
+        final device = Uri.base.queryParameters['device'] ?? 'iphone';
+        final isIpad = device == 'ipad';
+
+        final double logicalWidth = isIpad ? 1032.0 : 440.0;
+        final double logicalHeight = isIpad ? 1376.0 : 956.0;
+        final double targetWidth = isIpad ? 2064.0 : 1320.0;
+        final double targetHeight = isIpad ? 2752.0 : 2868.0;
+        final double topPadding = isIpad ? 28.0 : 54.0;
+        final double bottomPadding = isIpad ? 24.0 : 34.0;
+
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            size: Size(logicalWidth, logicalHeight),
+            devicePixelRatio: targetWidth / logicalWidth,
+            padding: EdgeInsets.only(top: topPadding, bottom: bottomPadding),
+            viewPadding: EdgeInsets.only(top: topPadding, bottom: bottomPadding),
+          ),
+          child: SizedBox(
+            width: targetWidth,
+            height: targetHeight,
+            child: FittedBox(
+              fit: BoxFit.fill,
+              child: SizedBox(
+                width: logicalWidth,
+                height: logicalHeight,
+                child: child,
+              ),
+            ),
+          ),
+        );
+      },
       home: _isLoading
           ? const Scaffold(
               backgroundColor: AppColors.primaryBackground,
@@ -525,15 +565,29 @@ class _Bpt121AppState extends State<Bpt121App> {
                 child: CircularProgressIndicator(color: AppColors.premiumBlue),
               ),
             )
-          : _savedLanguageCode == null
-              ? InitialLanguageScreen(
-                  onLanguageSelected: _onLanguageSelected,
+          : Uri.base.queryParameters['screen'] == 'quiz'
+              ? ExamScreen(
+                  language: 'de',
+                  mode: ExamMode.standard,
+                  customQuestions: QuestionService.getPreviewQuestions(language: 'de'),
+                  initialSelectedAnswerIndex: 1,
+                  initialIsAnswerChecked: true,
                 )
-              : Bpt121HomeScreen(
-                  initialLanguage: AppLanguage.fromCode(_savedLanguageCode),
-                  themeMode: _themeMode,
-                  onThemeModeChanged: _onThemeModeChanged,
-                ),
+              : Uri.base.queryParameters['screen'] == 'home'
+                  ? Bpt121HomeScreen(
+                      initialLanguage: AppLanguage.de,
+                      themeMode: _themeMode,
+                      onThemeModeChanged: _onThemeModeChanged,
+                    )
+                  : _savedLanguageCode == null
+                      ? InitialLanguageScreen(
+                          onLanguageSelected: _onLanguageSelected,
+                        )
+                      : Bpt121HomeScreen(
+                          initialLanguage: AppLanguage.fromCode(_savedLanguageCode),
+                          themeMode: _themeMode,
+                          onThemeModeChanged: _onThemeModeChanged,
+                        ),
     );
   }
 }
