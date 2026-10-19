@@ -17,33 +17,26 @@ workflows:
       - name: Set up code signing
         script: |
           keychain initialize
-          app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create
+          
+          # Sertifika oluşturmak için gerekli RSA özel anahtarını üret
+          openssl genrsa -out /tmp/cert_key.pem 2048
+          
+          # Bu anahtarı kullanarak Apple'dan sertifika ve profili çek/oluştur
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --create \
+            --certificate-key=@file:/tmp/cert_key.pem
+            
           keychain add-certificates
           xcode-project use-profiles
       - name: Build and Export IPA
         script: |
-          # Codemagic'in ürettiği export_options.plist içindeki array hatasını Python ile düzeltelim
-          python3 -c '
-          import plistlib
-          path = "/Users/builder/export_options.plist"
-          with open(path, "rb") as f:
-              data = plistlib.load(f)
-          print("Original export_options.plist:", data)
-          if isinstance(data.get("provisioningProfiles"), list):
-              fixed_profiles = {}
-              for item in data["provisioningProfiles"]:
-                  if isinstance(item, dict):
-                      fixed_profiles.update(item)
-              data["provisioningProfiles"] = fixed_profiles
-          with open(path, "wb") as f:
-              plistlib.dump(data, f)
-          print("Fixed export_options.plist:", data)
-          '
+          # export_options.plist içeriğini kontrol et (Artık dolu olmalı!)
+          cat /Users/builder/export_options.plist
+          
+          flutter build ipa --release \
+            --export-options-plist=/Users/builder/export_options.plist
 
-          # Düzeltilmiş plist ile IPA oluştur
-          flutter build ipa --release --export-options-plist=/Users/builder/export_options.plist
-
-          # Oluşan IPA dosyasını ana dizine Runner.ipa olarak kopyala
           find build -name "*.ipa" -exec cp {} ./Runner.ipa \;
           ls -lh Runner.ipa
       - name: Publish to App Store Connect
