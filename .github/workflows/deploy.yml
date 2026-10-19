@@ -27,13 +27,12 @@ jobs:
           mkdir -p ~/.private_keys
           echo "${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}" | base64 --decode > ~/.private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8
 
-      - name: Build IPA for App Store with Automatic Signing
+      - name: Build IPA for App Store
         run: |
           flutter build ipa --release \
-            --export-options-plist=ios/ExportOptions.plist
-        env:
-          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
-          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+            --p8 ~/.private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8 \
+            --issuer ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }} \
+            --key ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
 
       - name: Upload to App Store Connect
         run: |
