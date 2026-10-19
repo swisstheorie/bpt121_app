@@ -25,9 +25,7 @@ jobs:
       - name: Set up App Store Connect API Key
         run: |
           mkdir -p ~/.private_keys
-          cat << 'KEYEOF' > ~/.private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8
-          ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
-          KEYEOF
+          echo -n "${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}" > ~/.private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8
 
       - name: Build IPA for App Store
         run: flutter build ipa --release --no-codesign
