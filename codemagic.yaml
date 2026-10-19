@@ -6,15 +6,19 @@ workflows:
     integrations:
       app_store_connect: AppleKey
     environment:
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: ch.swisstheorie.bpt121
       vars:
         BUNDLE_ID: "ch.swisstheorie.bpt121"
     scripts:
       - name: Install dependencies
         script: |
           flutter packages get
+      - name: Set up code signing
+        script: |
+          keychain initialize
+          app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create
+          app-store-connect list-certificates
+          keychain add-certificates
+          xcode-project use-profiles
       - name: Build IPA
         script: |
           flutter build ipa --release --export-options-plist=ios/ExportOptions.plist
