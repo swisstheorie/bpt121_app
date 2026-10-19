@@ -22,15 +22,14 @@ workflows:
           xcode-project use-profiles
       - name: Build IPA
         script: |
+          mkdir -p build/ios/ipa
           flutter build ipa --release \
             --export-options-plist=/Users/builder/export_options.plist
+          # Flutter bazen build/ios/ipa altına bazen de build/ios/archive altına atar, bulup kopyalayalım:
+          find build -name "*.ipa" -exec cp {} build/ios/ipa/ \;
+          ls -la build/ios/ipa/
       - name: Publish to App Store Connect
         script: |
-          IPA_PATH=$(find build/ios/ipa -name "*.ipa" | head -n 1)
-          if [ -z "$IPA_PATH" ]; then
-            IPA_PATH=$(find . -name "*.ipa" | head -n 1)
-          fi
-          echo "Found IPA at: $IPA_PATH"
-          app-store-connect publish --path "$IPA_PATH"
+          app-store-connect publish --path build/ios/ipa/*.ipa
     artifacts:
       - build/ios/ipa/*.ipa
