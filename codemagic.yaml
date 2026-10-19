@@ -20,15 +20,44 @@ workflows:
           app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create
           keychain add-certificates
           xcode-project use-profiles
-      - name: Build IPA
+      - name: Build and Export IPA
         script: |
-          flutter build ios --config-only --release
-          xcode-project build-ipa \
-            --workspace "ios/Runner.xcworkspace" \
-            --scheme "Runner"
+          # 1. İndirilen profilden Team ID ve Profil Adını otomatik çek
+          PROFILE_FILE=$(find ~/Library/MobileDevice/Provisioning\ Profiles -name "*.mobileprovision" | head -n 1)
+          security cms -D -i "$PROFILE_FILE" > /tmp/profile.plist
+          TEAM_ID=$(/usr/libexec/PlistBuddy -c "Print :TeamIdentifier:0" /tmp/profile.plist)
+          PROFILE_NAME=$(/usr/libexec/PlistBuddy -c "Print :Name" /tmp/profile.plist)
+          echo "Detected Team ID: $TEAM_ID | Profile Name: $PROFILE_NAME"
+
+          # 2. Kusursuz Dictionary formatında ExportOptions.plist oluştur
+          cat << PLIST > /tmp/ExportOptions.plist
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>app-store</string>
+              <key>teamID</key>
+              <string>$TEAM_ID</string>
+              <key>signingStyle</key>
+              <string>manual</string>
+              <key>provisioningProfiles</key>
+              <dict>
+                  <key>$BUNDLE_ID</key>
+                  <string>$PROFILE_NAME</string>
+              </dict>
+          </dict>
+          </plist>
+          PLIST
+
+          # 3. Flutter ile derle ve IPA paketini oluştur
+          flutter build ipa --release --export-options-plist=/tmp/ExportOptions.plist
+
+          # 4. Oluşan IPA dosyasını ana dizine Runner.ipa olarak sabitle
+          find build -name "*.ipa" -exec cp {} ./Runner.ipa \;
+          ls -lh Runner.ipa
       - name: Publish to App Store Connect
         script: |
-          app-store-connect publish \
-            --path $(find /Users/builder/clone/build/ios/ipa -name "*.ipa" | head -n 1)
+          app-store-connect publish --path Runner.ipa
     artifacts:
-      - build/ios/ipa/*.ipa
+      - Runner.ipa
