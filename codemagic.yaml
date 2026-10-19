@@ -22,9 +22,11 @@ workflows:
           xcode-project use-profiles
       - name: Build IPA
         script: |
-          flutter build ipa --release --export-options-plist=ios/ExportOptions.plist
+          flutter build ipa --release
     artifacts:
+      - build/ios/archive/*.xcarchive
       - build/ios/ipa/*.ipa
+      - /Users/builder/clone/build/ios/ipa/*.ipa
     publishing:
       app_store_connect:
         auth: integration
