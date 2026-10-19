@@ -22,17 +22,17 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Set up App Store Connect API Key (Base64 Decode)
-        run: |
-          mkdir -p ~/.private_keys
-          echo "${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}" | base64 --decode > ~/.private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8
-
-      - name: Install the Apple certificate and provisioning profile
+      - name: Set up App Store Connect API Key & Certificate
         env:
           BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
           P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
+          # 1. API Anahtarını yerleştir
+          mkdir -p ~/.private_keys
+          echo "${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}" | base64 --decode > ~/.private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8
+
+          # 2. Sertifikayı Keychain'e yükle
           CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
 
@@ -45,19 +45,9 @@ jobs:
           security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
 
-      - name: Build Archive without codesign
-        run: flutter build ipa --release --no-codesign
-
-      - name: Export IPA with Signed Keychain and API Key Auth
+      - name: Build IPA Release
         run: |
-          xcodebuild -exportArchive \
-            -archivePath build/ios/archive/Runner.xcarchive \
-            -exportPath build/ios/ipa \
-            -exportOptionsPlist ios/ExportOptions.plist \
-            -allowProvisioningUpdates \
-            -authenticationKeyID "${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}" \
-            -authenticationKeyIssuerID "${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}" \
-            -authenticationKeyPath "$HOME/.private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8"
+          flutter build ipa --release
 
       - name: Upload to App Store Connect
         run: |
