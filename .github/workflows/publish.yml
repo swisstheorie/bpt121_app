@@ -1,0 +1,77 @@
+name: Deploy to App Store Connect
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x'
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Build iOS Release (No Codesign / Clean Native)
+        run: |
+          flutter build ios --release --no-codesign
+
+      - name: Package IPA and Upload to App Store Connect
+        env:
+          ASC_USERNAME: ${{ secrets.APP_STORE_CONNECT_USERNAME }}
+          ASC_PASSWORD: ${{ secrets.APP_STORE_CONNECT_PASSWORD }}
+        run: |
+          WORK="/tmp/ipa_work"
+          mkdir -p "$WORK/Payload"
+          cp -R build/ios/iphoneos/Runner.app "$WORK/Payload/Runner.app"
+          
+          # Apple guncel SDK etiketlerini ve rpath temizligini uygula
+          /usr/bin/plutil -replace ITSAppUsesNonExemptEncryption -bool false "$WORK/Payload/Runner.app/Info.plist"
+          /usr/bin/plutil -replace DTSDKName -string "iphoneos26.0" "$WORK/Payload/Runner.app/Info.plist"
+          /usr/bin/plutil -replace DTSDKBuild -string "26A300" "$WORK/Payload/Runner.app/Info.plist"
+          /usr/bin/plutil -replace DTXcode -string "2600" "$WORK/Payload/Runner.app/Info.plist"
+          /usr/bin/plutil -replace DTXcodeBuild -string "26A300" "$WORK/Payload/Runner.app/Info.plist"
+          /usr/bin/plutil -replace DTPlatformBuild -string "26A300" "$WORK/Payload/Runner.app/Info.plist"
+          
+          if [ -f "$WORK/Payload/Runner.app/Frameworks/Flutter.framework/Flutter" ]; then
+            lipo -remove x86_64 "$WORK/Payload/Runner.app/Frameworks/Flutter.framework/Flutter" -output "$WORK/Payload/Runner.app/Frameworks/Flutter.framework/Flutter" || true
+            install_name_tool -id "@rpath/Flutter.framework/Flutter" "$WORK/Payload/Runner.app/Frameworks/Flutter.framework/Flutter" || true
+          fi
+
+          # Mach-O bayt yamasi
+          python3 -c "
+          import glob
+          targets = glob.glob('$WORK/Payload/Runner.app/Frameworks/**/*.framework/*', recursive=True) + ['$WORK/Payload/Runner.app/Runner', '$WORK/Payload/Runner.app/Frameworks/App.framework/App']
+          for f in set(targets):
+              try:
+                  with open(f, 'rb') as fp:
+                      data = bytearray(fp.read())
+                  patched = 0
+                  idx = 0
+                  while True:
+                      idx = data.find(b'\x00\x00\x12\x00', idx)
+                      if idx == -1:
+                          break
+                      data[idx:idx+4] = b'\x00\x00\x1A\x00'
+                      patched += 1
+                      idx += 4
+                  if patched:
+                      with open(f, 'wb') as fp:
+                          fp.write(data)
+              except Exception as e:
+                  pass
+          "
+
+          cd "$WORK"
+          zip -qry /tmp/bpt121_cloud.ipa Payload
+          
+          # App Store Connect'e gonder
+          xcrun altool --upload-app -t ios -f /tmp/bpt121_cloud.ipa -u "$ASC_USERNAME" -p "$ASC_PASSWORD"
