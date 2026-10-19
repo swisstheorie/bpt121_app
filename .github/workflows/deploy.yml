@@ -30,9 +30,7 @@ jobs:
       - name: Build IPA for App Store
         run: |
           flutter build ipa --release \
-            --p8 ~/.private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8 \
-            --issuer ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }} \
-            --key ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+            --export-options-plist=ios/ExportOptions.plist
 
       - name: Upload to App Store Connect
         run: |
