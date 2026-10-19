@@ -3,6 +3,8 @@ workflows:
     name: iOS Release
     max_build_duration: 120
     instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: AppleKey
     environment:
       ios_signing:
         distribution_type: app_store
@@ -10,11 +12,22 @@ workflows:
       vars:
         BUNDLE_ID: "ch.swisstheorie.bpt121"
     scripts:
-      - name: Set up code signing settings
+      - name: Install dependencies
         script: |
           flutter packages get
-      - name: Build ipa for distribution
+      - name: Set up code signing
+        script: |
+          keychain initialize
+          app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create
+          app-store-connect list-certificates
+          keychain add-certificates
+          xcode-project use-profiles
+      - name: Build IPA
         script: |
           flutter build ipa --release --export-options-plist=ios/ExportOptions.plist
     artifacts:
       - build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: false
