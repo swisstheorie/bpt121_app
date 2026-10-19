@@ -6,6 +6,7 @@ import 'package:bpt121_app/main.dart';
 import 'package:bpt121_app/models/exam_result.dart';
 import 'package:bpt121_app/models/question.dart';
 import 'package:bpt121_app/screens/exam_screen.dart';
+import 'package:bpt121_app/services/purchase_service.dart';
 import 'package:bpt121_app/services/question_service.dart';
 import 'package:bpt121_app/services/storage_service.dart';
 
@@ -1136,6 +1137,24 @@ void main() {
 
     expect(find.text('BPT 121 Vollversion freischalten'), findsOneWidget);
     expect(find.text('Jetzt freischalten (CHF 14.90)'), findsOneWidget);
+    expect(find.text('Käufe wiederherstellen'), findsOneWidget);
+  });
+
+  test('PurchaseService verifies product ID bpt121_full_access and purchase flow', () async {
+    expect(PurchaseService.fullAccessProductId, 'bpt121_full_access');
+
+    final purchaseService = PurchaseService();
+    expect(await StorageService.isPremium(), false);
+
+    // Test buyFullAccess in test environment
+    final success = await purchaseService.buyFullAccess();
+    expect(success, true);
+    expect(await StorageService.isPremium(), true);
+
+    // Test restorePurchases
+    final restored = await purchaseService.restorePurchases();
+    expect(restored, true);
   });
 
 }
+

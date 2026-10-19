@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../config/exam_config.dart';
 import '../models/exam_result.dart';
 import '../models/question.dart';
+import '../services/purchase_service.dart';
 import '../services/question_service.dart';
 import '../services/storage_service.dart';
 import '../theme/app_colors.dart';
@@ -204,8 +205,9 @@ class _ExamScreenState extends State<ExamScreen> {
                 ),
                 onPressed: () async {
                   Navigator.of(ctx).pop();
-                  await StorageService.setPremium(true);
-                  if (mounted) {
+                  await PurchaseService().buyFullAccess();
+                  final premium = await StorageService.isPremium();
+                  if (premium && mounted) {
                     setState(() {
                       _isPremium = true;
                     });
@@ -224,10 +226,58 @@ class _ExamScreenState extends State<ExamScreen> {
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                 ),
               ),
-              const SizedBox(height: 10),
-              TextButton(
-                onPressed: () => Navigator.of(ctx).pop(),
-                child: Text('Später', style: TextStyle(color: colors.textSecondary)),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    onPressed: () async {
+                      Navigator.of(ctx).pop();
+                      await PurchaseService().restorePurchases();
+                      final premium = await StorageService.isPremium();
+                      if (premium && mounted) {
+                        setState(() {
+                          _isPremium = true;
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text('✨ Frühere Käufe erfolgreich wiederhergestellt!'),
+                            backgroundColor: colors.successJade,
+                            duration: const Duration(seconds: 3),
+                          ),
+                        );
+                      } else if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text('Keine früheren Käufe gefunden.'),
+                            backgroundColor: colors.accentGold,
+                            duration: const Duration(seconds: 3),
+                          ),
+                        );
+                      }
+                    },
+                    child: Text(
+                      'Käufe wiederherstellen',
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        color: colors.textSecondary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  Text(' • ', style: TextStyle(color: colors.borderSubtle)),
+                  TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(),
+                    child: Text(
+                      'Später',
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        color: colors.textSecondary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

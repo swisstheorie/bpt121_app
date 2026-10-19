@@ -1,4 +1,4 @@
-package com.example.bpt121_app
+package ch.swisstheorie.bpt121
 
 import io.flutter.embedding.android.FlutterActivity
 

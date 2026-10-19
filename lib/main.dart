@@ -5,6 +5,7 @@ import 'config/exam_config.dart';
 import 'models/exam_result.dart';
 import 'models/question.dart';
 import 'screens/exam_screen.dart';
+import 'services/purchase_service.dart';
 import 'services/question_service.dart';
 import 'services/storage_service.dart';
 import 'theme/app_colors.dart';
@@ -574,9 +575,42 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
     _selectedLanguage = widget.initialLanguage ?? AppLanguage.de;
     _syncSavedLanguage();
     _loadResults();
+    PurchaseService().initialize(
+      onPurchaseSuccess: () {
+        if (mounted) {
+          setState(() {
+            _isPremium = true;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('✨ Vollversion erfolgreich freigeschaltet!'),
+              backgroundColor: colors.alpineJade,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      },
+      onPurchaseError: (err) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Kauf nicht abgeschlossen: $err'),
+              backgroundColor: colors.coralRed,
+              duration: const Duration(seconds: 4),
+            ),
+          );
+        }
+      },
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkAndShowExamDisclaimer();
     });
+  }
+
+  @override
+  void dispose() {
+    PurchaseService().dispose();
+    super.dispose();
   }
 
   Future<void> _syncSavedLanguage() async {
@@ -735,19 +769,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                 ),
                 onPressed: () async {
                   Navigator.of(ctx).pop();
-                  await StorageService.setPremium(true);
-                  if (mounted) {
-                    setState(() {
-                      _isPremium = true;
-                    });
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('✨ Vollversion erfolgreich freigeschaltet!'),
-                        backgroundColor: colors.alpineJade,
-                        duration: Duration(seconds: 3),
-                      ),
-                    );
-                  }
+                  await PurchaseService().buyFullAccess();
                 },
                 icon: const Icon(Icons.check_circle_rounded, size: 20),
                 label: const Text(
@@ -755,10 +777,37 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                 ),
               ),
-              const SizedBox(height: 10),
-              TextButton(
-                onPressed: () => Navigator.of(ctx).pop(),
-                child: Text('Später', style: TextStyle(color: colors.secondaryText)),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                      _showRestorePurchasesDialog();
+                    },
+                    child: Text(
+                      'Käufe wiederherstellen',
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        color: colors.secondaryText,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  Text(' • ', style: TextStyle(color: colors.mutedBorder)),
+                  TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(),
+                    child: Text(
+                      'Später',
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        color: colors.secondaryText,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -3014,7 +3063,18 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
     }
   }
 
-  void _showRestorePurchasesDialog() {
+  Future<void> _showRestorePurchasesDialog() async {
+    if (!_isPremium) {
+      await PurchaseService().restorePurchases();
+      final premium = await StorageService.isPremium();
+      if (premium && mounted) {
+        setState(() {
+          _isPremium = true;
+        });
+      }
+    }
+    if (!mounted) return;
+
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
