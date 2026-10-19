@@ -15,13 +15,6 @@ workflows:
       - name: Install dependencies
         script: |
           flutter packages get
-      - name: Set up code signing
-        script: |
-          keychain initialize
-          app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create
-          app-store-connect list-certificates
-          keychain add-certificates
-          xcode-project use-profiles
       - name: Build IPA
         script: |
           flutter build ipa --release --export-options-plist=ios/ExportOptions.plist
