@@ -22,13 +22,11 @@ workflows:
           xcode-project use-profiles
       - name: Build and Export IPA
         script: |
-          # 1. Arşivi oluştur
-          flutter build ipa --release --export-options-plist=/Users/builder/export_options.plist
+          # Sabit ve doğru formatlı ExportOptions.plist dosyamızı kullanarak IPA oluşturalım
+          flutter build ipa --release --export-options-plist=ExportOptions.plist
           
-          # 2. Üretilen ipa dosyasını sistemin neresinde olursa olsun bulup ana dizine kopyala
+          # Üretilen ipa dosyasını bulup ana dizine kopyala
           find . -name "*.ipa" -exec cp {} ./Runner.ipa \;
-          
-          # 3. Kontrol et
           ls -lh Runner.ipa
       - name: Publish to App Store Connect
         script: |
