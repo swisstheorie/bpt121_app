@@ -24,13 +24,13 @@ workflows:
         script: |
           flutter build ipa --release \
             --export-options-plist=/Users/builder/export_options.plist
-          find . -name "*.ipa" -exec cp {} build/ios/ipa/ \; 2>/dev/null || true
-          ls -la build/ios/ipa/ || true
       - name: Publish to App Store Connect
         script: |
-          app-store-connect publish \
-            --path $(find . -name "*.ipa" | head -n 1)
+          IPA_PATH=$(find build/ios/ipa -name "*.ipa" | head -n 1)
+          if [ -z "$IPA_PATH" ]; then
+            IPA_PATH=$(find . -name "*.ipa" | head -n 1)
+          fi
+          echo "Found IPA at: $IPA_PATH"
+          app-store-connect publish --path "$IPA_PATH"
     artifacts:
-      - "**/build/**/ipa/*.ipa"
-      - "*.ipa"
-      - "**/*.ipa"
+      - build/ios/ipa/*.ipa
