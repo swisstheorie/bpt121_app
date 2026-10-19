@@ -20,16 +20,18 @@ workflows:
           app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create
           keychain add-certificates
           xcode-project use-profiles
-      - name: Build IPA
+      - name: Build and Export IPA
         script: |
-          mkdir -p build/ios/ipa
-          flutter build ipa --release \
-            --export-options-plist=/Users/builder/export_options.plist
-          # Flutter bazen build/ios/ipa altına bazen de build/ios/archive altına atar, bulup kopyalayalım:
-          find build -name "*.ipa" -exec cp {} build/ios/ipa/ \;
-          ls -la build/ios/ipa/
+          # 1. Arşivi oluştur
+          flutter build ipa --release --export-options-plist=/Users/builder/export_options.plist
+          
+          # 2. Üretilen ipa dosyasını sistemin neresinde olursa olsun bulup ana dizine kopyala
+          find . -name "*.ipa" -exec cp {} ./Runner.ipa \;
+          
+          # 3. Kontrol et
+          ls -lh Runner.ipa
       - name: Publish to App Store Connect
         script: |
-          app-store-connect publish --path build/ios/ipa/*.ipa
+          app-store-connect publish --path Runner.ipa
     artifacts:
-      - build/ios/ipa/*.ipa
+      - Runner.ipa
