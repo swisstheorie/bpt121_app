@@ -24,15 +24,10 @@ workflows:
             --certificate-key=@file:/tmp/cert_key.pem
           keychain add-certificates
           xcode-project use-profiles
-      - name: Build Flutter iOS project
-        script: |
-          flutter build ios --release --no-codesign
       - name: Build and Export IPA
         script: |
-          xcode-project build-ipa \
-            --workspace "ios/Runner.xcworkspace" \
-            --scheme "Runner"
-          find build -name "*.ipa" -exec cp {} ./Runner.ipa \;
+          flutter build ipa --release --export-options-plist=/Users/builder/export_options.plist
+          find build/ios/ipa -name "*.ipa" -exec cp {} ./Runner.ipa \;
           ls -lh Runner.ipa
       - name: Publish to App Store Connect
         script: |
