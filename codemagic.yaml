@@ -20,8 +20,7 @@ workflows:
           xcode-project use-profiles
       - name: Build ipa
         script: |
-          flutter build ipa --release \
-            --export-options-plist=ios/ExportOptions.plist
+          flutter build ipa --release
       - name: Publish to App Store Connect
         script: |
           app-store-connect publish --path "$(find build/ios/ipa -name "*.ipa" | head -n 1)"
