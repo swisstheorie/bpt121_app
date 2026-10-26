@@ -26,10 +26,16 @@ workflows:
           xcode-project use-profiles
       - name: Build and Export IPA
         script: |
-          xcode-project build-ipa \
-            --workspace "ios/Runner.xcworkspace" \
-            --scheme "Runner"
-          find build -name "*.ipa" -exec cp {} ./Runner.ipa \;
+          # Arşiv dosyasını dinamik olarak bul ve export et
+          ARCHIVE_PATH=$(ls -d build/ios/xcarchive/*.xcarchive | head -n 1)
+          echo "Using archive path: $ARCHIVE_PATH"
+          
+          xcodebuild -exportArchive \
+            -archivePath "$ARCHIVE_PATH" \
+            -exportOptionsPlist /Users/builder/export_options.plist \
+            -exportPath build/ios/ipa
+            
+          find build/ios/ipa -name "*.ipa" -exec cp {} ./Runner.ipa \;
           ls -lh Runner.ipa
       - name: Publish to App Store Connect
         script: |
