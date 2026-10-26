@@ -31,7 +31,7 @@ workflows:
           ARCHIVE_PATH=$(find build/ios/archive -name "*.xcarchive" | head -n 1)
           echo "Found archive at: $ARCHIVE_PATH"
           
-          # Takım kimliğimizi doğrudan ve kesin olarak sabitliyoruz
+          # Apple Distribution sertifika adi ve Team ID plist dosyasina tanimlandi
           cat << PLIST > /tmp/export_options.plist
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -43,6 +43,8 @@ workflows:
               <string>manual</string>
               <key>teamID</key>
               <string>4B79843375</string>
+              <key>signingCertificate</key>
+              <string>Apple Distribution</string>
               <key>uploadSymbols</key>
               <true/>
           </dict>
