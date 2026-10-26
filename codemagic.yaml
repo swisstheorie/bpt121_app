@@ -16,8 +16,8 @@ workflows:
       - name: Fetch or create signing files from Apple
         script: |
           openssl genrsa -out /tmp/cert_key.pem 2048
-          # Çıktıdaki bilgilendirme yazısını atlayıp doğrudan JSON içindeki ilk sertifika ID'sini alıyoruz
-          CERT_ID=$(app-store-connect list-certificates --type DISTRIBUTION --json | python3 -c "import sys, json; raw = sys.stdin.read(); idx = raw.find('['); data = json.loads(raw[idx:]) if idx != -1 else []; print(data[0]['id'] if data else '')")
+          # JSON kullanmadan doğrudan parantez içindeki 10 haneli Sertifika ID'sini yakalayıp siliyoruz
+          CERT_ID=$(app-store-connect list-certificates --type DISTRIBUTION | grep -Eo '\([A-Z0-9]{10}\)' | head -n 1 | tr -d '()')
           echo "Target Certificate ID to delete: $CERT_ID"
           if [ -n "$CERT_ID" ]; then
             app-store-connect delete-certificate "$CERT_ID"
