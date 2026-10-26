@@ -12,13 +12,17 @@ workflows:
         BUNDLE_ID: "ch.swisstheorie.bpt121"
       cocoapods: default
     scripts:
+      - name: Get Flutter packages
+        script: |
+          flutter packages pub get
       - name: Set up code signing settings on Xcode project
         script: |
           xcode-project use-profiles
       - name: Build ipa for distribution
         script: |
-          flutter build ipa --release \
-            --export-options-plist=/Users/builder/export_options.plist
+          xcode-project build-ipa \
+            --workspace ios/Runner.xcworkspace \
+            --scheme Runner
     artifacts:
       - build/ios/ipa/*.ipa
     publishing:
