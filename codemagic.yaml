@@ -26,8 +26,8 @@ workflows:
           xcode-project use-profiles
       - name: Build and Export IPA
         script: |
-          flutter build ipa --release --export-options-plist=/Users/builder/export_options.plist
-          find build/ios/ipa -name "*.ipa" -exec cp {} ./Runner.ipa \;
+          flutter build ipa --release --export-method=app-store
+          find build -name "*.ipa" -exec cp {} ./Runner.ipa \;
           ls -lh Runner.ipa
       - name: Publish to App Store Connect
         script: |
