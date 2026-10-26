@@ -14,9 +14,7 @@ workflows:
     scripts:
       - name: Build ipa with automatic signing
         script: |
-          # Codemagic otomatik imzalama profillerini ve sertifikalarini kendisi yonetir
-          flutter build ipa --release \
-            --export-options-plist=export_options.plist
+          flutter build ipa --release
       - name: Publish to App Store Connect
         script: |
           IPA_PATH=$(find build/ios/ipa -name "*.ipa" | head -n 1)
