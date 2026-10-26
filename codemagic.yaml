@@ -14,23 +14,21 @@ workflows:
     scripts:
       - name: Set up code signing
         script: |
-          # Keychain ve sertifika alani sifirdan duzgun kuruluyor
           keychain initialize
-          
-          # Apple Developer hesabindan sertifika ve profili otomatik indiriyoruz
-          app-store-connect fetch-signing-files "$BUNDLE_ID" \
-            --type IOS_APP_STORE \
-            --create
-            
+          app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create
           keychain add-certificates
           xcode-project use-profiles
       - name: Build ipa
         script: |
-          # Codemagic'in kendi urettigi export_options dosyasini kullanarak IPA uretiyoruz
           flutter build ipa --release \
-            --export-options-plist=/Users/builder/export_options.plist
+            --export-options-plist=export_options.plist
       - name: Publish to App Store Connect
         script: |
-          app-store-connect publish --path "$(find build/ios/ipa -name "*.ipa" | head -n 1)"
+          IPA_PATH=$(find build/ios/ipa -name "*.ipa" | head -n 1)
+          if [ -z "$IPA_PATH" ]; then
+            echo "Error: IPA file not found!"
+            exit 1
+          fi
+          app-store-connect publish --path "$IPA_PATH"
     artifacts:
       - build/ios/ipa/*.ipa
