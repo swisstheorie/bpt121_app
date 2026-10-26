@@ -16,9 +16,10 @@ workflows:
       - name: Fetch or create signing files from Apple
         script: |
           openssl genrsa -out /tmp/cert_key.pem 2048
-          # 3 sertifika limitine takılmamak için kullanılmayan eski bir distribution sertifikasını kaldırıyoruz
-          CERT_ID=$(app-store-connect list-certificates --type IOS_DISTRIBUTION --json | python3 -c "import sys, json; data = json.load(sys.stdin); print(data[0]['id'] if data else '')")
+          # DISTRIBUTION tipindeki 3 sertifikadan ilkini bulup siliyoruz ki yeni sertifikaya yer açılsın
+          CERT_ID=$(app-store-connect list-certificates --type DISTRIBUTION --json | python3 -c "import sys, json; raw = sys.stdin.read().strip(); data = json.loads(raw) if raw.startswith('[') else []; print(data[0]['id'] if data else '')")
           if [ -n "$CERT_ID" ]; then
+            echo "Deleting existing certificate ID: $CERT_ID"
             app-store-connect delete-certificate "$CERT_ID" || true
           fi
           app-store-connect fetch-signing-files "ch.swisstheorie.bpt121" \
