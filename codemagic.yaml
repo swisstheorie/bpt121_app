@@ -16,21 +16,20 @@ workflows:
       - name: Fetch or create signing files from Apple
         script: |
           openssl genrsa -out /tmp/cert_key.pem 2048
-          # Sertifikaları JSON olarak alıp gerçek API ID'sini (serial number değil) çekiyoruz
+          # Kalan tüm eski DISTRIBUTION sertifikalarını temizliyoruz ki 409 hatası tamamen kalksın
           app-store-connect certificates list --type DISTRIBUTION --json > /tmp/certs.json
-          CERT_ID=$(python3 -c '
+          CERT_IDS=$(python3 -c '
           import json, re
           content = open("/tmp/certs.json").read()
           match = re.search(r"\[\s*\{.*\}\s*\]", content, re.DOTALL)
           if match:
-              data = json.loads(match.group(0))
-              if data:
-                  print(data[0]["id"])
+              for cert in json.loads(match.group(0)):
+                  print(cert["id"])
           ')
-          echo "Real Certificate API ID to delete: $CERT_ID"
-          if [ -n "$CERT_ID" ]; then
-            app-store-connect certificates delete "$CERT_ID"
-          fi
+          for ID in $CERT_IDS; do
+            echo "Deleting Certificate ID: $ID"
+            app-store-connect certificates delete "$ID" || true
+          done
           app-store-connect fetch-signing-files "ch.swisstheorie.bpt121" \
             --type IOS_APP_STORE \
             --create \
