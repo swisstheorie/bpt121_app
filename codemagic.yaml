@@ -17,26 +17,16 @@ workflows:
       - name: Set up code signing
         script: |
           keychain initialize
-          
-          # Sertifika oluşturmak için gerekli RSA özel anahtarını üret
           openssl genrsa -out /tmp/cert_key.pem 2048
-          
-          # Bu anahtarı kullanarak Apple'dan sertifika ve profili çek/oluştur
           app-store-connect fetch-signing-files "$BUNDLE_ID" \
             --type IOS_APP_STORE \
             --create \
             --certificate-key=@file:/tmp/cert_key.pem
-            
           keychain add-certificates
           xcode-project use-profiles
       - name: Build and Export IPA
         script: |
-          # export_options.plist içeriğini kontrol et (Artık dolu olmalı!)
-          cat /Users/builder/export_options.plist
-          
-          flutter build ipa --release \
-            --export-options-plist=/Users/builder/export_options.plist
-
+          flutter build ipa --release --export-method app-store
           find build -name "*.ipa" -exec cp {} ./Runner.ipa \;
           ls -lh Runner.ipa
       - name: Publish to App Store Connect
