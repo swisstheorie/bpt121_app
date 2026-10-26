@@ -26,9 +26,14 @@ workflows:
           xcode-project use-profiles
       - name: Build and Export IPA
         script: |
-          ARCHIVE_PATH=$(ls -d build/ios/xcarchive/*.xcarchive | head -n 1)
-          echo "Using archive path: $ARCHIVE_PATH"
+          # Önce arşivi standart Flutter komutuyla oluştur
+          flutter build ipa --release --no-pub
           
+          # Oluşan arşivin yolunu tam olarak bul ve değişkene ata
+          ARCHIVE_PATH=$(find build/ios/archive -name "*.xcarchive" | head -n 1)
+          echo "Found archive at: $ARCHIVE_PATH"
+          
+          # IPA'ya dönüştür
           xcodebuild -exportArchive \
             -archivePath "$ARCHIVE_PATH" \
             -exportOptionsPlist /Users/builder/export_options.plist \
