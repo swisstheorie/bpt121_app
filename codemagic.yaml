@@ -26,25 +26,26 @@ workflows:
           xcode-project use-profiles
       - name: Build and Export IPA
         script: |
-          # Tertemiz export options plist dosyamizi olusturuyoruz
+          # Sertifika adini Apple Distribution olarak plist dosyasina tanimliyoruz
           cat << PLIST > /tmp/export_options.plist
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
           <dict>
               <key>method</key>
-              <string>app-store</string>
+              <string>app-store-connect</string>
               <key>signingStyle</key>
               <string>manual</string>
               <key>teamID</key>
               <string>4B79843375</string>
+              <key>signingCertificate</key>
+              <string>Apple Distribution</string>
               <key>uploadSymbols</key>
               <true/>
           </dict>
           </plist>
           PLIST
 
-          # Flutter dogrudan arşivi olusturup export islemini bu plist ile tamamlayacak
           flutter build ipa --release --no-pub --export-options-plist=/tmp/export_options.plist
           
           find build/ios/ipa -name "*.ipa" -exec cp {} ./Runner.ipa \;
