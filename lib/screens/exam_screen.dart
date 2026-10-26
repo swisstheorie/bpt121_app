@@ -168,7 +168,7 @@ class _ExamScreenState extends State<ExamScreen> {
                         ),
                         const SizedBox(height: 3),
                         Text(
-                          'CHF 14.90 (Einmalig · Lebenslanger Zugriff)',
+                          'CHF 15.00 (Einmalig · Lebenslanger Zugriff)',
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -228,7 +228,7 @@ class _ExamScreenState extends State<ExamScreen> {
                 },
                 icon: const Icon(Icons.check_circle_rounded, size: 20),
                 label: const Text(
-                  'Jetzt freischalten (CHF 14.90)',
+                  'Jetzt freischalten (CHF 15.00)',
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -1781,7 +1781,7 @@ class _ExamScreenState extends State<ExamScreen> {
                       onPressed: _showPaywallModal,
                       icon: const Icon(Icons.lock_open_rounded, size: 18),
                       label: const Text(
-                        'Alle 500 Prüfungsfragen (2026) freischalten 🔓 (CHF 14.90)',
+                        'Alle 500 Prüfungsfragen (2026) freischalten 🔓 (CHF 15.00)',
                         style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                         textAlign: TextAlign.center,
                       ),

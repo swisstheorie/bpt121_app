@@ -579,15 +579,7 @@ class _Bpt121AppState extends State<Bpt121App> {
                       themeMode: _themeMode,
                       onThemeModeChanged: _onThemeModeChanged,
                     )
-                  : _savedLanguageCode == null
-                      ? InitialLanguageScreen(
-                          onLanguageSelected: _onLanguageSelected,
-                        )
-                      : Bpt121HomeScreen(
-                          initialLanguage: AppLanguage.fromCode(_savedLanguageCode),
-                          themeMode: _themeMode,
-                          onThemeModeChanged: _onThemeModeChanged,
-                        ),
+                  : Bpt121HomeScreen(initialLanguage: AppLanguage.de, themeMode: _themeMode, onThemeModeChanged: _onThemeModeChanged),
     );
   }
 }
@@ -783,7 +775,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                         ),
                         const SizedBox(height: 3),
                         Text(
-                          'CHF 14.90 (Einmalig · Lebenslanger Zugriff)',
+                          'CHF 15.00 (Einmalig · Lebenslanger Zugriff)',
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -822,12 +814,11 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                 ),
                 onPressed: () async {
-                  Navigator.of(ctx).pop();
                   await PurchaseService().buyFullAccess();
                 },
                 icon: const Icon(Icons.check_circle_rounded, size: 20),
                 label: const Text(
-                  'Jetzt freischalten (CHF 14.90)',
+                  'Jetzt freischalten (CHF 15.00)',
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -1516,7 +1507,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      'Lernen Sie nach den neuesten Schweizer ARV 2-Richtlinien 2026. Schalten Sie alle 500 Originalfragen für nur CHF 14.90 frei.',
+                      'Lernen Sie nach den neuesten Schweizer ARV 2-Richtlinien 2026. Schalten Sie alle 500 Originalfragen für nur CHF 15.00 frei.',
                       style: TextStyle(
                         fontSize: 11.5,
                         height: 1.35,
@@ -1541,7 +1532,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
             onPressed: _showPaywallModal,
             icon: Icon(Icons.lock_open_rounded, size: 16, color: colors.accentGold),
             label: Text(
-              'Alle 500 Fragen freischalten (CHF 14.90) 🔓',
+              'Alle 500 Fragen freischalten (CHF 15.00) 🔓',
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.bold,
@@ -3159,8 +3150,8 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
         ),
         content: Text(
           _isPremium
-              ? 'Ihre BPT 121 Vollversion (CHF 14.90) ist aktiv. Alle 500 Originalfragen und Funktionen stehen unbegrenzt zur Verfügung.'
-              : 'Es wurden keine früheren Einkäufe für Ihr Konto gefunden. Sie können alle 500 Fragen jederzeit für CHF 14.90 (Einmalkauf) freischalten.',
+              ? 'Ihre BPT 121 Vollversion (CHF 15.00) ist aktiv. Alle 500 Originalfragen und Funktionen stehen unbegrenzt zur Verfügung.'
+              : 'Es wurden keine früheren Einkäufe für Ihr Konto gefunden. Sie können alle 500 Fragen jederzeit für CHF 15.00 (Einmalkauf) freischalten.',
           style: TextStyle(
             fontSize: 13.5,
             color: colors.secondaryText,
@@ -3274,7 +3265,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                 'BPT 121 Taxi Theorie ist eine unabhängige Schweizer Lernsoftware zur Vorbereitung auf die Theorieprüfung für den gewerbsmässigen Personentransport (BPT / Code 121 gemäss ARV 2).\n\n'
                 '• Offizieller Lehrplan: Die Fragen und Antworten orientieren sich am offiziellen Anforderungskatalog der Vereinigung der Strassenverkehrsämter (asa) und der Chauffeurzulassungsverordnung (CZV / ARV 2).\n\n'
                 '• Haftungsausschluss: Die Nutzung der App ersetzt nicht die offizielle Anmeldung und Prüfung beim zuständigen kantonalen Strassenverkehrsamt. Für das Prüfungsergebnis wird keine rechtliche Gewähr übernommen.\n\n'
-                '• Lizenz: Der Einmalkauf (CHF 14.90) gewährt eine unbegrenzte, nicht-übertragbare Einzelnutzerlizenz inklusive aller Aktualisierungen für 2026.\n\n'
+                '• Lizenz: Der Einmalkauf (CHF 15.00) gewährt eine unbegrenzte, nicht-übertragbare Einzelnutzerlizenz inklusive aller Aktualisierungen für 2026.\n\n'
                 'Stand: 2026 • Schweiz',
                 style: TextStyle(
                   fontSize: 13,
@@ -3442,7 +3433,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              '500 aktuelle Fragen (2026) · CHF 14.90 (Einmalig)',
+                              '500 aktuelle Fragen (2026) · CHF 15.00 (Einmalig)',
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
@@ -3467,7 +3458,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                     onPressed: _showPaywallModal,
                     icon: const Icon(Icons.check_circle_rounded, size: 18),
                     label: const Text(
-                      'Jetzt freischalten (CHF 14.90)',
+                      'Jetzt freischalten (CHF 15.00)',
                       style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                     ),
                   ),
