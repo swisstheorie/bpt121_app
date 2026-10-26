@@ -12,11 +12,16 @@ workflows:
         BUNDLE_ID: "ch.swisstheorie.bpt121"
       cocoapods: default
     scripts:
-      - name: Build ipa with automatic signing
+      - name: Set up code signing settings on Xcode project
         script: |
-          flutter build ipa --release
-      - name: Publish to App Store Connect
+          xcode-project use-profiles
+      - name: Build ipa for distribution
         script: |
-          app-store-connect publish --path $(find build -name "*.ipa" | head -n 1)
+          flutter build ipa --release \
+            --export-options-plist=/Users/builder/export_options.plist
     artifacts:
       - build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
