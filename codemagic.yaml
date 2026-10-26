@@ -31,10 +31,7 @@ workflows:
           ARCHIVE_PATH=$(find build/ios/archive -name "*.xcarchive" | head -n 1)
           echo "Found archive at: $ARCHIVE_PATH"
           
-          # Provisioning profile içerisinden Team ID'yi otomatik okuyup plist'e ekliyoruz
-          TEAM_ID=$(defaults read ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision TeamIdentifier 2>/dev/null | head -n 1 || echo "")
-          echo "Extracted Team ID: $TEAM_ID"
-          
+          # Takım kimliğimizi doğrudan ve kesin olarak sabitliyoruz
           cat << PLIST > /tmp/export_options.plist
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -45,7 +42,7 @@ workflows:
               <key>signingStyle</key>
               <string>manual</string>
               <key>teamID</key>
-              <string>$TEAM_ID</string>
+              <string>4B79843375</string>
               <key>uploadSymbols</key>
               <true/>
           </dict>
