@@ -6,18 +6,33 @@ workflows:
     integrations:
       app_store_connect: AppleKey
     environment:
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: "ch.swisstheorie.bpt121"
       flutter: stable
       xcode: latest
+      vars:
+        BUNDLE_ID: "ch.swisstheorie.bpt121"
     scripts:
       - name: Install dependencies
         script: |
           flutter packages get
+      - name: Set up code signing
+        script: |
+          keychain initialize
+          openssl genrsa -out /tmp/cert_key.pem 2048
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --create \
+            --certificate-key=@file:/tmp/cert_key.pem
+          keychain add-certificates
+          xcode-project use-profiles
+      - name: Build Flutter iOS project
+        script: |
+          flutter build ios --release --no-codesign
       - name: Build and Export IPA
         script: |
-          flutter build ipa --release
+          xcode-project build-ipa \
+            --workspace "ios/Runner.xcworkspace" \
+            --scheme "Runner" \
+            --export-method "app-store"
           find build/ios/ipa -name "*.ipa" -exec cp {} ./Runner.ipa \;
           ls -lh Runner.ipa
       - name: Publish to App Store Connect
