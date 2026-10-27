@@ -9,6 +9,7 @@ import 'services/purchase_service.dart';
 import 'services/question_service.dart';
 import 'services/storage_service.dart';
 import 'theme/app_colors.dart';
+import 'ui_translations.dart';
 
 void main() {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -137,6 +138,7 @@ class InitialLanguageScreen extends StatefulWidget {
 
 class _InitialLanguageScreenState extends State<InitialLanguageScreen> {
   AppThemeColors get colors => AppColors.of(context);
+  UiTranslations get ui => UiTranslations.of(_selected.code);
   AppLanguage _selected = AppLanguage.de;
 
   String get _buttonText {
@@ -572,7 +574,22 @@ class _Bpt121AppState extends State<Bpt121App> {
                       themeMode: _themeMode,
                       onThemeModeChanged: _onThemeModeChanged,
                     )
-                  : Bpt121HomeScreen(initialLanguage: AppLanguage.fromCode(_savedLanguageCode ?? 'de'), themeMode: _themeMode, onThemeModeChanged: _onThemeModeChanged),
+                  : _savedLanguageCode == null
+                      ? InitialLanguageScreen(
+                          onLanguageSelected: (lang) async {
+                            await StorageService.saveSelectedLanguage(lang.code);
+                            if (mounted) {
+                              setState(() {
+                                _savedLanguageCode = lang.code;
+                              });
+                            }
+                          },
+                        )
+                      : Bpt121HomeScreen(
+                          initialLanguage: AppLanguage.fromCode(_savedLanguageCode ?? 'de'),
+                          themeMode: _themeMode,
+                          onThemeModeChanged: _onThemeModeChanged,
+                        ),
     );
   }
 }
@@ -595,6 +612,7 @@ class Bpt121HomeScreen extends StatefulWidget {
 
 class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
   AppThemeColors get colors => AppColors.of(context);
+  UiTranslations get ui => UiTranslations.of(_selectedLanguage.code);
   int _currentTabIndex = 0;
   late AppLanguage _selectedLanguage;
   ExamResult? _lastResult;
@@ -757,7 +775,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'BPT 121 Vollversion freischalten',
+                          ui.unlockFullTitle.replaceAll(" 🔓", ""),
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -766,7 +784,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                         ),
                         const SizedBox(height: 3),
                         Text(
-                          'CHF 15.00 (Einmalig · Lebenslanger Zugriff)',
+                          ui.paywallPriceSub,
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -781,20 +799,20 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
               const SizedBox(height: 20),
               _buildPaywallFeature(
                 Icons.all_inclusive_rounded,
-                'Alle 500 ARV 2 Prüfungsfragen',
-                'Kompletter Fragenpool nach Schweizer asa Standard ohne Sperren.',
+                ui.paywallFeature1Title,
+                ui.paywallFeature1Sub,
               ),
               const SizedBox(height: 12),
               _buildPaywallFeature(
                 Icons.shuffle_rounded,
-                'Dynamische Prüfungssimulation',
+                ui.paywallFeature2Title,
                 'Unbegrenzte Zufallsprüfungen mit realem 45-Minuten-Timer.',
               ),
               const SizedBox(height: 12),
               _buildPaywallFeature(
                 Icons.wifi_off_rounded,
-                '100% Offline & Werbefrei',
-                'Einmaliger Kauf – kein Abo, keine Registrierung, keine Werbung.',
+                ui.paywallFeature3Title,
+                ui.paywallFeature3Sub,
               ),
               const SizedBox(height: 24),
               FilledButton.icon(
@@ -807,9 +825,9 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                 onPressed: () async {
                   await PurchaseService().buyFullAccess();
                 },
-                icon: const Icon(Icons.check_circle_rounded, size: 20),
-                label: const Text(
-                  'Jetzt freischalten (CHF 15.00)',
+                icon: Icon(Icons.check_circle_rounded, size: 20),
+                label: Text(
+                  ui.unlockFullBtn,
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -823,7 +841,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                       _showRestorePurchasesDialog();
                     },
                     child: Text(
-                      'Käufe wiederherstellen',
+                      ui.restorePurchases,
                       style: TextStyle(
                         fontSize: 12.5,
                         color: colors.secondaryText,
@@ -835,7 +853,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                   TextButton(
                     onPressed: () => Navigator.of(ctx).pop(),
                     child: Text(
-                      'Später',
+                      ui.paywallLater,
                       style: TextStyle(
                         fontSize: 12.5,
                         color: colors.secondaryText,
@@ -1222,9 +1240,9 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
             children: [
               Icon(Icons.verified_rounded, color: colors.successGreen, size: 26),
               const SizedBox(width: 10),
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'Keine offenen Fehler',
+                  'Keine offenen ${ui.countMistakes}',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -1332,22 +1350,22 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
             });
             _loadResults();
           },
-          items: const [
+          items: [
             BottomNavigationBarItem(
               icon: Icon(Icons.dashboard_rounded),
-              label: 'Home',
+              label: ui.navHome,
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.school_rounded),
-              label: 'Lernen',
+              label: ui.navLearn,
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.bar_chart_rounded),
-              label: 'Statistik',
+              label: ui.navStats,
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person_rounded),
-              label: 'Profil',
+              label: ui.navProfile,
             ),
           ],
         ),
@@ -1457,7 +1475,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                     ),
                     const SizedBox(width: 5),
                     Text(
-                      '2026 · NEU: Offizieller ASA-Fragenkatalog',
+                      ui.freemiumPill,
                       style: TextStyle(
                         fontSize: 10.5,
                         fontWeight: FontWeight.bold,
@@ -1489,7 +1507,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'Aktueller Fragenkatalog 2026: 30 / 500 Fragen verfügbar',
+                      ui.freemiumTitle,
                       style: TextStyle(
                         fontSize: 13.5,
                         fontWeight: FontWeight.bold,
@@ -1498,7 +1516,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      'Lernen Sie nach den neuesten Schweizer ARV 2-Richtlinien 2026. Schalten Sie alle 500 Originalfragen für nur CHF 15.00 frei.',
+                      ui.freemiumSub,
                       style: TextStyle(
                         fontSize: 11.5,
                         height: 1.35,
@@ -1523,7 +1541,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
             onPressed: _showPaywallModal,
             icon: Icon(Icons.lock_open_rounded, size: 16, color: colors.accentGold),
             label: Text(
-              'Alle 500 Fragen freischalten (CHF 15.00) 🔓',
+              ui.freemiumBtn,
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.bold,
@@ -1571,7 +1589,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                'Offizieller Prüfungshinweis (BPT 121)',
+                ui.disclaimerModalTitle,
                 style: TextStyle(
                   color: colors.textPrimary,
                   fontSize: 16,
@@ -1598,7 +1616,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
-                  'ASA / ARV 2 RICHTLINIEN',
+                  ui.disclaimerBadge,
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
@@ -1609,7 +1627,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
               ),
               const SizedBox(height: 12),
               Text(
-                'Die Schweizer Theorieprüfung BPT 121 (ARV 2) wird an den kantonalen Strassenverkehrsämtern digital am PC absolviert.',
+                ui.disclaimerP1,
                 style: TextStyle(
                   color: colors.textPrimary,
                   fontSize: 13,
@@ -1628,7 +1646,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
               ),
               const SizedBox(height: 10),
               Text(
-                'Unser Fragenkatalog (500 Fragen) wurde präzise auf Basis der gesetzlichen Verordnung (ARV 2, SR 822.222) und der offiziellen asa-Prüfungsrichtlinien verfasst. Er deckt alle prüfungsrelevanten Themenbereiche und Fragetypen vollständig und realitätsgetreu ab.',
+                ui.disclaimerP3,
                 style: TextStyle(
                   color: colors.textSecondary,
                   fontSize: 12.5,
@@ -1655,7 +1673,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                 }
               },
               child: Text(
-                isFirstLaunch ? 'Verstanden & Fortfahren' : 'Schliessen',
+                isFirstLaunch ? ui.btnUnderstandContinue : 'Schliessen',
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               ),
             ),
@@ -1806,7 +1824,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
               const SizedBox(width: 8),
               Flexible(
                 child: Text(
-                  'STAND: 2026 · NEUE PRÜFUNGSFRAGEN',
+                  ui.standHeader,
                   style: TextStyle(
                     fontSize: 11.5,
                     fontWeight: FontWeight.w800,
@@ -1821,7 +1839,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
         ),
         const SizedBox(height: 6),
         Text(
-          'Dein Weg zur Prüfungsreife',
+          ui.welcomeTitle,
           style: TextStyle(
             fontSize: 21,
             fontWeight: FontWeight.bold,
@@ -1918,7 +1936,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                             children: [
                               Flexible(
                                 child: Text(
-                                  'Offizielle Prüfung',
+                                  ui.officialExam,
                                   style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.bold,
@@ -1969,8 +1987,8 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                     const SizedBox(width: 5),
                     Text(
                       hasResults
-                          ? '$readinessPercentage% BEREIT'
-                          : 'BEREIT FÜR START',
+                          ? '$readinessPercentage% ${ui.readyPercent}'
+                          : ui.readyForStart,
                       style: TextStyle(
                         fontSize: 9.5,
                         fontWeight: FontWeight.bold,
@@ -2008,7 +2026,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'GEMEISTERT',
+                        ui.mastered,
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
@@ -2036,7 +2054,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'QUOTE',
+                        ui.quote,
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
@@ -2064,7 +2082,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'LETZTER TEST',
+                        ui.lastTest,
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
@@ -2084,7 +2102,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Ausbildungsfortschritt',
+                ui.progressTitle,
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
@@ -2092,7 +2110,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                 ),
               ),
               Text(
-                'Ziel: 90% Schwellenwert',
+                ui.targetThreshold,
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
@@ -2132,7 +2150,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
               Expanded(
                 child: _buildExamParamBadge(
                   icon: Icons.format_list_numbered_rounded,
-                  label: '30 Fragen',
+                  label: ui.paramQuestions,
                   onTap: _showOfficialExamInfoDialog,
                 ),
               ),
@@ -2140,7 +2158,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
               Expanded(
                 child: _buildExamParamBadge(
                   icon: Icons.timer_outlined,
-                  label: '45 Minuten',
+                  label: ui.paramMinutes,
                   onTap: _showOfficialExamInfoDialog,
                 ),
               ),
@@ -2148,7 +2166,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
               Expanded(
                 child: _buildExamParamBadge(
                   icon: Icons.verified_user_outlined,
-                  label: 'Max. 3 Fehler',
+                  label: ui.paramMistakes,
                   onTap: _showOfficialExamInfoDialog,
                 ),
               ),
@@ -2189,8 +2207,8 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                           maxLines: 1,
                         ),
                         const SizedBox(height: 2),
-                        const Text(
-                          'Offizielle Simulation (30 Fragen · 45 Min)',
+                        Text(
+                          ui.officialSimulationSub,
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -2266,7 +2284,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
-                  isPassed ? 'Bestanden' : 'Nicht bestanden',
+                  isPassed ? ui.statPassed : ui.failed,
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
@@ -2320,7 +2338,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Lernbereich',
+                ui.learnTitle,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -2335,7 +2353,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                   border: Border.all(color: colors.mutedBorder, width: 0.8),
                 ),
                 child: Text(
-                  '6 THEMENGEBIETE',
+                  ui.sixTopics,
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
@@ -2348,7 +2366,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
           ),
           const SizedBox(height: 6),
           Text(
-            'Vertiefen Sie Ihr Wissen systematisch nach offiziellen Schweizer ARV 2 Richtlinien.',
+            ui.learnSub,
             style: TextStyle(
               fontSize: 13,
               color: colors.secondaryText,
@@ -2382,7 +2400,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '30 / 500 Fragen freigeschaltet 🔒',
+                          ui.learnBannerTitle,
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
@@ -2391,7 +2409,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                         ),
                         SizedBox(height: 2),
                         Text(
-                          'Kostenlose Testversion mit Schweizer Quoten.',
+                          ui.learnBannerSub,
                           style: TextStyle(fontSize: 11, color: colors.secondaryText),
                         ),
                       ],
@@ -2406,7 +2424,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                       visualDensity: VisualDensity.compact,
                     ),
                     onPressed: _showPaywallModal,
-                    child: const Text('Freischalten', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    child: Text(ui.unlockBtn, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
@@ -2416,7 +2434,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
 
           // Gezieltes Training (Quick-Access Cards for Falsche Fragen & Favoriten)
           Text(
-            'Gezieltes Training',
+            ui.targetedTraining,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -2428,7 +2446,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
             children: [
               Expanded(
                 child: _buildFocusTrainingCard(
-                  title: 'Falsche Fragen',
+                  title: ui.wrongQuestions,
                   count: _wrongQuestionIds.length,
                   icon: _wrongQuestionIds.isNotEmpty
                       ? Icons.replay_rounded
@@ -2437,21 +2455,21 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                       ? colors.errorRed
                       : colors.successGreen,
                   badgeText: _wrongQuestionIds.isNotEmpty
-                      ? '${_wrongQuestionIds.length} Fehler'
-                      : '0 Fehler ✨',
+                      ? '${_wrongQuestionIds.length} ${ui.countMistakes}'
+                      : ui.zeroMistakes,
                   onTap: _handleStartMistakesExam,
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: _buildFocusTrainingCard(
-                  title: 'Favoriten',
+                  title: ui.favorites,
                   count: _favoriteQuestionIds.length,
                   icon: Icons.star_rounded,
                   accentColor: _favoriteQuestionIds.isNotEmpty
                       ? colors.accentGold
                       : colors.secondaryText,
-                  badgeText: '${_favoriteQuestionIds.length} gemerkt',
+                  badgeText: '${_favoriteQuestionIds.length} ${ui.countFavorites}',
                   onTap: _handleStartFavoritesExam,
                 ),
               ),
@@ -2464,7 +2482,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Thementraining',
+                ui.topicTraining,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -2556,7 +2574,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                                     Icon(Icons.lock_outline_rounded, size: 12, color: colors.gold),
                                     const SizedBox(width: 4),
                                     Text(
-                                      '${accessibleQuestions.length} frei',
+                                      '${accessibleQuestions.length} ${ui.freeBadgeLabel}',
                                       style: TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.bold,
@@ -2566,7 +2584,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                                     Text(' · ', style: TextStyle(color: colors.secondaryText, fontSize: 11)),
                                   ],
                                   Text(
-                                    '$seenInTopic / $total gesehen',
+                                    '$seenInTopic / $total ${ui.seenLabel}',
                                     style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.bold,
@@ -2614,7 +2632,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                                   Icon(Icons.check_circle_rounded, size: 14, color: colors.alpineJade),
                                   const SizedBox(width: 5),
                                   Text(
-                                    '$correctInTopic Richtig',
+                                    '$correctInTopic ${ui.correctBadge}',
                                     style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.bold,
@@ -2653,7 +2671,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                                   ),
                                   const SizedBox(width: 5),
                                   Text(
-                                    '${wrongInTopic.length} Falsch',
+                                    '${wrongInTopic.length} ${ui.wrongBadge}',
                                     style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.bold,
@@ -2690,7 +2708,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                               ),
                               icon: Icon(Icons.replay_rounded, size: 15, color: colors.errorRed),
                               label: Text(
-                                '${wrongInTopic.length} ${wrongInTopic.length == 1 ? "falsche Frage" : "falsche Fragen"} üben',
+                                ui.practiceMistakesLabel(wrongInTopic.length),
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
@@ -2798,14 +2816,14 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                 const SizedBox(height: 2),
                 Text(
                   count == 0
-                      ? (title == 'Falsche Fragen' ? 'Perfekt vorbereitet!' : 'Keine Fragen')
-                      : 'Jetzt wiederholen',
+                      ? ((title == 'Falsche Fragen' || title == ui.wrongQuestions) ? ui.perfectPrepared : ui.noQuestions)
+                      : ui.repeatNow,
                   style: TextStyle(
                     fontSize: 11,
-                    color: count == 0 && title == 'Falsche Fragen'
+                    color: count == 0 && (title == 'Falsche Fragen' || title == ui.wrongQuestions)
                         ? colors.successGreen
                         : colors.secondaryText,
-                    fontWeight: count == 0 && title == 'Falsche Fragen'
+                    fontWeight: count == 0 && (title == 'Falsche Fragen' || title == ui.wrongQuestions)
                         ? FontWeight.w600
                         : FontWeight.normal,
                   ),
@@ -2828,7 +2846,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Lernstatistik',
+            ui.statsTitle,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -2862,7 +2880,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                   ),
                   SizedBox(height: 16),
                   Text(
-                    'Noch keine Prüfungen absolviert',
+                    ui.noExamsTitle,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 16,
@@ -2872,7 +2890,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    'Sobald Sie eine Probeprüfung abschliessen, werden Ihre Ergebnisse und Ihre Erfolgsquote hier angezeigt.',
+                    ui.noExamsSub,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 13,
@@ -2891,7 +2909,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                 _buildRealStatisticsSummary(),
                 const SizedBox(height: 24),
                 Text(
-                  'Prüfungshistorie',
+                  ui.examHistory,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -2916,15 +2934,15 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
     return Row(
       children: [
         Expanded(
-          child: _buildMetricTile('Prüfungen', '$total', colors.primaryText),
+          child: _buildMetricTile(ui.statExams, '$total', colors.primaryText),
         ),
         const SizedBox(width: 8),
         Expanded(
-          child: _buildMetricTile('Bestanden', '$passedCount', colors.successGreen),
+          child: _buildMetricTile(ui.statPassed, '$passedCount', colors.successGreen),
         ),
         const SizedBox(width: 8),
         Expanded(
-          child: _buildMetricTile('Erfolgsquote', '$passRate%', colors.gold),
+          child: _buildMetricTile(ui.statSuccessRate, '$passRate%', colors.gold),
         ),
       ],
     );
@@ -2998,7 +3016,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${result.correctCount}/${result.totalQuestions} richtig (${result.percentage}%)',
+                    '${result.correctCount}/${result.totalQuestions} ${ui.correctBadge.toLowerCase()} (${result.percentage}%)',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -3026,7 +3044,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              result.isPassed ? 'Bestanden' : 'Nicht bestanden',
+              result.isPassed ? ui.statPassed : ui.failed,
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
@@ -3129,7 +3147,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                'Käufe wiederherstellen',
+                ui.restorePurchases,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -3178,7 +3196,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                'Datenschutzerklärung',
+                ui.privacyPolicy,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -3291,7 +3309,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Profil & Einstellungen',
+            ui.profileTitle,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -3329,7 +3347,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'BPT 121 Kandidat',
+                        ui.candidateTitle,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -3338,7 +3356,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                       ),
                       SizedBox(height: 3),
                       Text(
-                        'Schweizer Taxiprüfung (ARV 2)',
+                        ui.candidateSubtitle,
                         style: TextStyle(
                           fontSize: 12,
                           color: colors.secondaryText,
@@ -3360,7 +3378,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                     ),
                   ),
                   child: Text(
-                    _isPremium ? 'PRO / Vollversion ✨' : 'Kostenlos',
+                    _isPremium ? 'PRO / Vollversion ✨' : ui.freeVersion,
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
@@ -3415,7 +3433,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'BPT 121 Vollversion freischalten 🔓',
+                              ui.unlockFullTitle,
                               style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.bold,
@@ -3424,7 +3442,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              '500 aktuelle Fragen (2026) · CHF 15.00 (Einmalig)',
+                              ui.unlockFullSub,
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
@@ -3447,9 +3465,9 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                       ),
                     ),
                     onPressed: _showPaywallModal,
-                    icon: const Icon(Icons.check_circle_rounded, size: 18),
-                    label: const Text(
-                      'Jetzt freischalten (CHF 15.00)',
+                    icon: Icon(Icons.check_circle_rounded, size: 18),
+                    label: Text(
+                      ui.unlockFullBtn,
                       style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -3508,7 +3526,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
 
           // Learning Status / Mistakes & Favorites Section in Profile
           Text(
-            'Lernstand & Wiederholung',
+            ui.learningStatusSection,
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.bold,
@@ -3546,7 +3564,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Falsche Fragen',
+                            ui.wrongQuestions,
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
@@ -3555,7 +3573,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                           ),
                           Text(
                             _wrongQuestionIds.isEmpty
-                                ? 'Keine Fehler erfasst'
+                                ? ui.noMistakesRecorded
                                 : '${_wrongQuestionIds.length} Fragen zum Wiederholen',
                             style: TextStyle(
                               fontSize: 12,
@@ -3567,7 +3585,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                     ),
                     TextButton(
                       onPressed: _wrongQuestionIds.isEmpty ? null : _handleStartMistakesExam,
-                      child: const Text('Üben'),
+                      child: Text(ui.practiceBtn),
                     ),
                   ],
                 ),
@@ -3592,7 +3610,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Favoriten',
+                            ui.favorites,
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
@@ -3601,7 +3619,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                           ),
                           Text(
                             _favoriteQuestionIds.isEmpty
-                                ? 'Keine Fragen markiert'
+                                ? ui.noFavoritesMarked
                                 : '${_favoriteQuestionIds.length} Fragen gespeichert',
                             style: TextStyle(
                               fontSize: 12,
@@ -3613,7 +3631,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                     ),
                     TextButton(
                       onPressed: _favoriteQuestionIds.isEmpty ? null : _handleStartFavoritesExam,
-                      child: const Text('Üben'),
+                      child: Text(ui.practiceBtn),
                     ),
                   ],
                 ),
@@ -3625,7 +3643,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
 
           // Appearance / Theme Section
           Text(
-            'Erscheinungsbild',
+            ui.appearanceSection,
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.bold,
@@ -3645,19 +3663,19 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
               children: [
                 _buildThemeOptionTile(
                   icon: Icons.wb_sunny_rounded,
-                  label: 'Hell',
+                  label: ui.themeLight,
                   mode: ThemeMode.light,
                   isSelected: _currentThemeMode == ThemeMode.light,
                 ),
                 _buildThemeOptionTile(
                   icon: Icons.nightlight_round,
-                  label: 'Dunkel',
+                  label: ui.themeDark,
                   mode: ThemeMode.dark,
                   isSelected: _currentThemeMode == ThemeMode.dark,
                 ),
                 _buildThemeOptionTile(
                   icon: Icons.smartphone_rounded,
-                  label: 'System',
+                  label: ui.themeSystem,
                   mode: ThemeMode.system,
                   isSelected: _currentThemeMode == ThemeMode.system,
                 ),
@@ -3669,7 +3687,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
 
           // Language Setting Header
           Text(
-            'Prüfungssprache',
+            ui.examLanguageSection,
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.bold,
@@ -3754,7 +3772,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
 
           // Legal & Official Info
           Text(
-            'Rechtliche Grundlagen & Info',
+            ui.legalSection,
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.bold,
@@ -3773,47 +3791,47 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
               children: [
                 _buildInfoTile(
                   Icons.restore_rounded,
-                  'Käufe wiederherstellen',
-                  'StoreKit / Google Play',
+                  ui.restorePurchases,
+                  ui.storeKitSub,
                   onTap: _showRestorePurchasesDialog,
                 ),
                 Divider(color: colors.elevatedSurface, height: 1),
                 _buildInfoTile(
                   Icons.privacy_tip_outlined,
-                  'Datenschutzerklärung',
-                  'Offline & DSGVO-konform',
+                  ui.privacyPolicy,
+                  ui.privacySub,
                   onTap: _showPrivacyPolicyDialog,
                 ),
                 Divider(color: colors.elevatedSurface, height: 1),
                 _buildInfoTile(
                   Icons.gavel_rounded,
-                  'Nutzungsbedingungen',
-                  'AGB & Richtlinien',
+                  ui.termsOfUse,
+                  ui.termsSub,
                   onTap: _showTermsDialog,
                 ),
                 Divider(color: colors.elevatedSurface, height: 1),
                 _buildInfoTile(
                   Icons.verified_outlined,
-                  'Offizieller Prüfungshinweis',
-                  'ASA-Richtlinien',
+                  ui.officialDisclaimer,
+                  ui.disclaimerSub,
                   onTap: () => _showOfficialExamDisclaimerDialog(isFirstLaunch: false),
                 ),
                 Divider(color: colors.elevatedSurface, height: 1),
                 _buildInfoTile(
                   Icons.menu_book_rounded,
-                  'Offizielle Verordnung',
+                  ui.officialRegulation,
                   'ARV 2 (SR 822.222)',
                 ),
                 Divider(color: colors.elevatedSurface, height: 1),
                 _buildInfoTile(
                   Icons.lock_outline_rounded,
-                  'Datenspeicherung',
-                  'Lokal auf diesem Gerät',
+                  ui.dataStorage,
+                  ui.dataStorageSub,
                 ),
                 Divider(color: colors.elevatedSurface, height: 1),
                 _buildInfoTile(
                   Icons.info_outline_rounded,
-                  'App-Version',
+                  ui.appVersion,
                   '1.0.0 (Build 2026.1)',
                 ),
               ],
@@ -3834,7 +3852,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
             onPressed: _showRestorePurchasesDialog,
             icon: Icon(Icons.restore_rounded, color: colors.secondaryText, size: 20),
             label: Text(
-              'Käufe wiederherstellen',
+              ui.restorePurchases,
               style: TextStyle(
                 color: colors.secondaryText,
                 fontWeight: FontWeight.w600,
@@ -3855,7 +3873,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
             onPressed: _showResetLearningProgressDialog,
             icon: Icon(Icons.delete_sweep_rounded, color: colors.coralRed, size: 20),
             label: Text(
-              'Lernstand zurücksetzen',
+              ui.resetProgress,
               style: TextStyle(
                 color: colors.coralRed,
                 fontWeight: FontWeight.w600,

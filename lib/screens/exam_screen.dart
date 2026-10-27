@@ -9,6 +9,7 @@ import '../services/purchase_service.dart';
 import '../services/question_service.dart';
 import '../services/storage_service.dart';
 import '../theme/app_colors.dart';
+import '../ui_translations.dart';
 
 enum ExamMode {
   standard,
@@ -45,6 +46,7 @@ class ExamScreen extends StatefulWidget {
 }
 
 class _ExamScreenState extends State<ExamScreen> {
+  UiTranslations get ui => UiTranslations.of(widget.language);
   late final List<Question> _questions;
   int _currentIndex = 0;
 
@@ -519,7 +521,7 @@ class _ExamScreenState extends State<ExamScreen> {
             Icon(Icons.assignment_turned_in_rounded, color: colors.accentGold, size: 24),
             const SizedBox(width: 10),
             Text(
-              'Prüfung abgeben?',
+              ui.submitDialogTitle,
               style: TextStyle(
                 color: colors.textPrimary,
                 fontSize: 18,
@@ -533,12 +535,12 @@ class _ExamScreenState extends State<ExamScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Beantwortete Fragen: $answered von ${_questions.length}',
+              '${ui.answeredQuestions}: $answered ${ui.ofWord} ${_questions.length}',
               style: TextStyle(color: colors.textPrimary, fontSize: 14),
             ),
             const SizedBox(height: 6),
             Text(
-              'Offene Fragen: $unanswered',
+              '${ui.openQuestions}: $unanswered',
               style: TextStyle(
                 color: unanswered > 0 ? colors.coralRed : colors.successJade,
                 fontSize: 14,
@@ -554,7 +556,7 @@ class _ExamScreenState extends State<ExamScreen> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  'Wichtig: Unbeantwortete Fragen erhalten 0 Punkte und gelten als falsch.',
+                  ui.unansweredWarning,
                   style: TextStyle(color: colors.textSecondary, fontSize: 12),
                 ),
               ),
@@ -564,7 +566,7 @@ class _ExamScreenState extends State<ExamScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text('Weiter prüfen', style: TextStyle(color: colors.textSecondary)),
+            child: Text(ui.btnContinueExam, style: TextStyle(color: colors.textSecondary)),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
@@ -572,7 +574,7 @@ class _ExamScreenState extends State<ExamScreen> {
               foregroundColor: const Color(0xFF0C131F),
             ),
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Jetzt abgeben', style: TextStyle(fontWeight: FontWeight.bold)),
+            child: Text(ui.btnSubmitNow, style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -665,15 +667,15 @@ class _ExamScreenState extends State<ExamScreen> {
           borderRadius: BorderRadius.circular(16),
           side: BorderSide(color: colors.borderSubtle, width: 0.8),
         ),
-        title: Text('Prüfung abbrechen?', style: TextStyle(color: colors.textPrimary, fontWeight: FontWeight.bold)),
+        title: Text(ui.exitDialogTitle, style: TextStyle(color: colors.textPrimary, fontWeight: FontWeight.bold)),
         content: Text(
-          'Möchten Sie die laufende Prüfung wirklich verlassen? Bisher beantwortete Fragen werden in Ihrem Lernfortschritt gespeichert.',
+          ui.exitDialogMessage,
           style: TextStyle(color: colors.textSecondary, fontSize: 14),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text('Weiter prüfen', style: TextStyle(color: colors.textSecondary)),
+            child: Text(ui.btnContinueExam, style: TextStyle(color: colors.textSecondary)),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
@@ -681,7 +683,7 @@ class _ExamScreenState extends State<ExamScreen> {
               foregroundColor: Colors.white,
             ),
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Prüfung beenden'),
+            child: Text(ui.btnFinishExam),
           ),
         ],
       ),
@@ -734,7 +736,7 @@ class _ExamScreenState extends State<ExamScreen> {
     switch (widget.mode) {
       case ExamMode.simulation:
         return _questions.length >= ExamConfig.fullExamQuestionCount
-            ? 'BPT 121 Vollprüfung'
+            ? ui.examScreenTitle
             : 'BPT 121 Prüfungssimulation';
       case ExamMode.topic:
         return 'Thementraining';
@@ -1082,7 +1084,7 @@ class _ExamScreenState extends State<ExamScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Frage ${_currentIndex + 1} von ${_questions.length}',
+                '${ui.questionWord} ${_currentIndex + 1} ${ui.ofWord} ${_questions.length}',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
@@ -1191,7 +1193,7 @@ class _ExamScreenState extends State<ExamScreen> {
               ),
               onPressed: _currentIndex > 0 ? _previousQuestion : null,
               child: Text(
-                'Zurück',
+                ui.btnBack,
                 style: TextStyle(color: colors.textPrimary, fontWeight: FontWeight.w600),
               ),
             ),
@@ -1212,7 +1214,7 @@ class _ExamScreenState extends State<ExamScreen> {
               ),
               onPressed: _nextQuestionSimulation,
               child: Text(
-                isLast ? 'Prüfung beenden' : 'Nächste Frage',
+                isLast ? ui.btnFinishExam : ui.btnNext,
                 style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
               ),
             ),
@@ -1240,7 +1242,7 @@ class _ExamScreenState extends State<ExamScreen> {
         onPressed: _isAnswerChecked ? _nextQuestionPractice : null,
         child: Text(
           _currentIndex + 1 < _questions.length
-              ? 'Nächste Frage'
+              ? ui.btnNext
               : 'Ergebnis anzeigen',
           style: const TextStyle(
             fontSize: 16,
@@ -1520,7 +1522,7 @@ class _ExamScreenState extends State<ExamScreen> {
 
             // Status Headline
             Text(
-              isPassed ? 'Bestanden!' : 'Nicht bestanden',
+              isPassed ? 'Bestanden!' : ui.failed,
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -1560,9 +1562,9 @@ class _ExamScreenState extends State<ExamScreen> {
               isPassed
                   ? (total == ExamConfig.fullExamQuestionCount
                       ? 'Herzlichen Glückwunsch! Sie haben mit $correctCount von 30 Richtigen den offiziellen Schweizer Standard bestanden.'
-                      : 'Herzlichen Glückwunsch! Sie haben $correctCount von $total Fragen (%90) richtig beantwortet.')
+                      : ui.resultPassSub)
                   : (total == ExamConfig.fullExamQuestionCount
-                      ? 'Für das offizielle Bestehen sind mindestens 27 von 30 richtigen Antworten (%90) erforderlich (maximal 3 Fehler).'
+                      ? ui.resultFailSub
                       : 'Für das Bestehen sind mindestens $requiredScore von $total richtigen Antworten (%90) erforderlich.'),
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -1589,7 +1591,7 @@ class _ExamScreenState extends State<ExamScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          'Richtig',
+                          ui.correctBadge,
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -1618,7 +1620,7 @@ class _ExamScreenState extends State<ExamScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          'Falsch',
+                          ui.wrongBadge,
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -1648,7 +1650,7 @@ class _ExamScreenState extends State<ExamScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            'Offen',
+                            ui.statOpen,
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
@@ -1678,7 +1680,7 @@ class _ExamScreenState extends State<ExamScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          'Quote',
+                          ui.quote,
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -1748,7 +1750,7 @@ class _ExamScreenState extends State<ExamScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Prüfungsreife garantieren',
+                                ui.guaranteeTitle,
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
@@ -1757,7 +1759,7 @@ class _ExamScreenState extends State<ExamScreen> {
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                'Alle 500 Originalfragen (2026) nach Schweizer ARV 2 freischalten.',
+                                ui.guaranteeSub,
                                 style: TextStyle(
                                   fontSize: 11.5,
                                   color: colors.textSecondary,
@@ -1780,8 +1782,8 @@ class _ExamScreenState extends State<ExamScreen> {
                       ),
                       onPressed: _showPaywallModal,
                       icon: const Icon(Icons.lock_open_rounded, size: 18),
-                      label: const Text(
-                        'Alle 500 Prüfungsfragen (2026) freischalten 🔓 (CHF 15.00)',
+                      label: Text(
+                        ui.guaranteeBtn,
                         style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                         textAlign: TextAlign.center,
                       ),
@@ -1810,8 +1812,8 @@ class _ExamScreenState extends State<ExamScreen> {
                     });
                   },
                   icon: Icon(Icons.rate_review_rounded, color: colors.accentGold),
-                  label: const Text(
-                    'Antworten & Erklärungen prüfen',
+                  label: Text(
+                    ui.btnReviewAnswers,
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -1831,8 +1833,8 @@ class _ExamScreenState extends State<ExamScreen> {
                 ),
                 onPressed: _restartExam,
                 icon: const Icon(Icons.refresh_rounded),
-                label: const Text(
-                  'Prüfung wiederholen',
+                label: Text(
+                  ui.btnRepeatExam,
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -1850,7 +1852,7 @@ class _ExamScreenState extends State<ExamScreen> {
                 ),
                 onPressed: () => Navigator.of(context).pop(),
                 child: Text(
-                  'Zurück zum Hauptmenü',
+                  ui.btnBackToMenu,
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
@@ -1930,7 +1932,7 @@ class _ExamScreenState extends State<ExamScreen> {
                 children: [
                   Icon(Icons.check_circle_rounded, color: colors.successJade, size: 18),
                   const SizedBox(width: 4),
-                  Text('Richtig', style: TextStyle(color: colors.successJade, fontSize: 11, fontWeight: FontWeight.bold)),
+                  Text(ui.correctBadge, style: TextStyle(color: colors.successJade, fontSize: 11, fontWeight: FontWeight.bold)),
                 ],
               );
             } else if (wasChosen) {
