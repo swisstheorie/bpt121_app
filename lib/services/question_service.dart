@@ -1,5 +1,7 @@
 import 'dart:math';
 import '../models/question.dart';
+import '../models/questions_fr.dart';
+import '../models/questions_it.dart';
 
 /// BPT 121 Frage- und Prüfungsservice.
 /// Verwaltet den verifizierten 500-Fragen-Pool und generiert
@@ -120,10 +122,9 @@ class QuestionService {
   static List<Question> getFreeQuestions(String language) {
     switch (language) {
       case 'fr':
+        return List.unmodifiable(sampleFrenchBpt121Questions);
       case 'it':
-      // İleride dile özgü listeler buraya eklenecek:
-      // return _allFreeFrenchQuestions;
-      // return _allFreeItalianQuestions;
+        return List.unmodifiable(sampleItalianBpt121Questions);
       case 'de':
       default:
         return List.unmodifiable(_allFreeQuestions);
