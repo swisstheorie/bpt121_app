@@ -82,8 +82,11 @@ class PurchaseService {
     }
 
     if (!_isAvailable) {
-      onPurchaseError?.call('Verbindung zum App Store fehlgeschlagen.');
-      return false;
+      _isAvailable = await _inAppPurchase.isAvailable();
+      if (!_isAvailable) {
+        onPurchaseError?.call('Verbindung zum App Store fehlgeschlagen.');
+        return false;
+      }
     }
 
     if (_fullAccessProduct == null) {
@@ -92,11 +95,19 @@ class PurchaseService {
 
     final product = _fullAccessProduct;
     if (product == null) {
+      final retryResponse = await _inAppPurchase.queryProductDetails({fullAccessProductId});
+      if (retryResponse.productDetails.isNotEmpty) {
+        _fullAccessProduct = retryResponse.productDetails.first;
+      }
+    }
+
+    final finalProduct = _fullAccessProduct;
+    if (finalProduct == null) {
       onPurchaseError?.call('Produkt derzeit nicht verfügbar. Bitte versuchen Sie es später erneut.');
       return false;
     }
 
-    final purchaseParam = PurchaseParam(productDetails: product);
+    final purchaseParam = PurchaseParam(productDetails: finalProduct);
     return await _inAppPurchase.buyNonConsumable(purchaseParam: purchaseParam);
   }
 
