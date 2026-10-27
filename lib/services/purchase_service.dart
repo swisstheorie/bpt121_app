@@ -75,12 +75,15 @@ class PurchaseService {
   /// Initiates non-consumable purchase flow for bpt121_full_access.
   Future<bool> buyFullAccess() async {
     final isTest = WidgetsBinding.instance.runtimeType.toString().contains('Test');
-    if (isTest || !_isAvailable) {
-      // In test mode or environments without active StoreKit/Play Store,
-      // unlock directly for seamless offline/testing capability.
+    if (isTest) {
       await StorageService.setPremium(true);
       onPurchaseSuccess?.call();
       return true;
+    }
+
+    if (!_isAvailable) {
+      onPurchaseError?.call('Verbindung zum App Store fehlgeschlagen.');
+      return false;
     }
 
     if (_fullAccessProduct == null) {
@@ -89,10 +92,8 @@ class PurchaseService {
 
     final product = _fullAccessProduct;
     if (product == null) {
-      // If store is reached but product metadata is still pending App Store review propagation
-      await StorageService.setPremium(true);
-      onPurchaseSuccess?.call();
-      return true;
+      onPurchaseError?.call('Produkt derzeit nicht verfügbar. Bitte versuchen Sie es später erneut.');
+      return false;
     }
 
     final purchaseParam = PurchaseParam(productDetails: product);
