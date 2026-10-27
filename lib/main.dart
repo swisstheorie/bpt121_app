@@ -400,14 +400,7 @@ class _Bpt121AppState extends State<Bpt121App> {
     await StorageService.setThemeMode(str);
   }
 
-  void _onLanguageSelected(AppLanguage lang) async {
-    await StorageService.saveSelectedLanguage(lang.code);
-    if (mounted) {
-      setState(() {
-        _savedLanguageCode = lang.code;
-      });
-    }
-  }
+
 
   static ThemeData get _darkTheme {
     return ThemeData(
@@ -575,11 +568,11 @@ class _Bpt121AppState extends State<Bpt121App> {
                 )
               : Uri.base.queryParameters['screen'] == 'home'
                   ? Bpt121HomeScreen(
-                      initialLanguage: AppLanguage.de,
+                      initialLanguage: AppLanguage.fromCode(_savedLanguageCode ?? 'de'),
                       themeMode: _themeMode,
                       onThemeModeChanged: _onThemeModeChanged,
                     )
-                  : Bpt121HomeScreen(initialLanguage: AppLanguage.de, themeMode: _themeMode, onThemeModeChanged: _onThemeModeChanged),
+                  : Bpt121HomeScreen(initialLanguage: AppLanguage.fromCode(_savedLanguageCode ?? 'de'), themeMode: _themeMode, onThemeModeChanged: _onThemeModeChanged),
     );
   }
 }
@@ -660,13 +653,11 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
   }
 
   Future<void> _syncSavedLanguage() async {
-    if (widget.initialLanguage == null) {
-      final saved = await StorageService.getSavedLanguage();
-      if (saved != null && mounted) {
-        setState(() {
-          _selectedLanguage = AppLanguage.fromCode(saved);
-        });
-      }
+    final saved = await StorageService.getSavedLanguage();
+    if (saved != null && mounted) {
+      setState(() {
+        _selectedLanguage = AppLanguage.fromCode(saved);
+      });
     }
   }
 
@@ -3690,13 +3681,10 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
           // Language Tiles
           ...AppLanguage.values.map((lang) {
             final isSelected = lang == _selectedLanguage;
-            final isEnabled = lang == AppLanguage.de;
-            final availableTag = (lang == AppLanguage.fr || lang == AppLanguage.it)
-                ? 'Bald verfügbar (Update)'
-                : null;
+            final String? availableTag = null;
 
             return Opacity(
-              opacity: isEnabled ? 1.0 : 0.55,
+              opacity: 1.0,
               child: Container(
                 margin: const EdgeInsets.only(bottom: 8),
                 decoration: BoxDecoration(
@@ -3716,7 +3704,7 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     dense: true,
-                    onTap: isEnabled ? () => _onLanguageSelected(lang) : null,
+                    onTap: () => _onLanguageSelected(lang),
                     leading: Text(
                       lang.flag,
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
@@ -3753,30 +3741,14 @@ class _Bpt121HomeScreenState extends State<Bpt121HomeScreen> {
                     ),
                     trailing: isSelected
                         ? Icon(Icons.check_rounded, color: colors.premiumBlue)
-                        : (availableTag != null
-                            ? Icon(Icons.lock_outline_rounded, size: 16, color: colors.secondaryText)
-                            : null),
+                        : null,
                   ),
                 ),
               ),
             );
           }),
 
-          if (_selectedLanguage != AppLanguage.de)
-            Padding(
-              padding: const EdgeInsets.only(top: 4, bottom: 8),
-              child: Text(
-                _selectedLanguage == AppLanguage.fr
-                    ? 'ℹ️ Les questions d\'entraînement officielles sont actuellement en allemand (ARV 2). Les traductions françaises seront intégrées dès validation.'
-                    : 'ℹ️ Le domande di prova ufficiali sono attualmente in tedesco (ARV 2). Le traduzioni italiane saranno integrate dopo la verifica.',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: colors.secondaryText,
-                  fontStyle: FontStyle.italic,
-                  height: 1.35,
-                ),
-              ),
-            ),
+
 
           const SizedBox(height: 24),
 
