@@ -8,9 +8,9 @@ workflows:
     environment:
       ios_signing:
         certificates:
-          - bpt121_distribution_2026
+          - bpt121_distribution_new_2026
         provisioning_profiles:
-          - bpt121_appstore_2026
+          - bpt121_appstore_new_2026
       flutter: stable
       xcode: latest
       cocoapods: default
