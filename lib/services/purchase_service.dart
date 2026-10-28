@@ -61,6 +61,12 @@ class PurchaseService {
     if (!_isAvailable) return;
     try {
       final response = await _inAppPurchase.queryProductDetails({fullAccessProductId});
+      debugPrint('[IAP] Requested: $fullAccessProductId');
+      debugPrint('[IAP] Store available: $_isAvailable');
+      debugPrint('[IAP] Found IDs: ${response.productDetails.map((p) => p.id).toList()}');
+      debugPrint('[IAP] Not found IDs: ${response.notFoundIDs}');
+      debugPrint('[IAP] Query error: ${response.error}');
+
       if (response.productDetails.isNotEmpty) {
         _fullAccessProduct = response.productDetails.firstWhere(
           (prod) => prod.id == fullAccessProductId,
@@ -94,16 +100,30 @@ class PurchaseService {
     }
 
     final product = _fullAccessProduct;
+    String diagnostic = 'No product returned';
+
     if (product == null) {
-      final retryResponse = await _inAppPurchase.queryProductDetails({fullAccessProductId});
-      if (retryResponse.productDetails.isNotEmpty) {
-        _fullAccessProduct = retryResponse.productDetails.first;
+      try {
+        final retryResponse =
+            await _inAppPurchase.queryProductDetails({fullAccessProductId});
+
+        diagnostic =
+            'Not found: ${retryResponse.notFoundIDs}; '
+            'Error: ${retryResponse.error}; '
+            'Found: ${retryResponse.productDetails.map((p) => p.id).toList()}';
+
+        if (retryResponse.productDetails.isNotEmpty) {
+          _fullAccessProduct = retryResponse.productDetails.first;
+        }
+      } catch (e) {
+        diagnostic = 'Query exception: $e';
       }
     }
 
     final finalProduct = _fullAccessProduct;
     if (finalProduct == null) {
-      onPurchaseError?.call('Produkt derzeit nicht verfügbar. Bitte versuchen Sie es später erneut.');
+      debugPrint('[IAP DIAGNOSTIC] $diagnostic');
+      onPurchaseError?.call('IAP TEST: $diagnostic');
       return false;
     }
 
